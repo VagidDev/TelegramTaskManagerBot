@@ -62,6 +62,13 @@ public class TaskService {
         save(task);
     }
 
+    public void completeTask(Long id) {
+        Task task = get(id);
+        task.setCompleted(true);
+        save(task);
+    }
+
+    @Deprecated
     public boolean update(Task task) {
         if (task == null) {
             LOGGER.warn("Cannot update `null` task!");

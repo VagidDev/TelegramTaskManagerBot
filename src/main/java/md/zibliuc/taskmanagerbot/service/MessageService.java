@@ -9,6 +9,7 @@ import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.context.TaskAction;
 import md.zibliuc.taskmanagerbot.context.UserContext;
 import md.zibliuc.taskmanagerbot.context.UserState;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
@@ -43,16 +44,18 @@ public class MessageService {
     // TODO
     public void proceedCallbackQuery(Update update) {
         Long chatId = update.callbackQuery().maybeInaccessibleMessage().chat().id();
+        Integer messageId = update.callbackQuery().maybeInaccessibleMessage().messageId();
         String text = update.callbackQuery().data();
         UserContext context = userStateService.get(chatId);
 
         switch (context.getState()) {
-            case WAITING_DATE: {
+            case WAITING_DATE ->
                 proceedBuildTaskCommand(update, chatId, text, context);
-            }
-            case WAITING_TASK: {
-                proceedTask(chatId, text);
-            }
+            case WAITING_TASK ->
+                proceedTask(chatId, messageId, text, context);
+            case WAITING_TASK_ACTION ->
+                proceedTaskAction(chatId, messageId, text, context);
+
         }
 
         telegramBot.execute(new AnswerCallbackQuery(update.callbackQuery().id()));
@@ -145,6 +148,29 @@ public class MessageService {
             }
         }
     }
+    //TODO: add implementation for edit and delete action
+    public void proceedTaskAction(Long chatId, Integer messageId, String callBackData, UserContext context) {
+        if(callBackData.startsWith("CANCEL")) {
+            userStateService.reset(chatId);
+            return;
+        }
+
+        String[] data = callBackData.split(":");
+        if (data.length != 2) {
+            return;
+        }
+
+        TaskAction action = TaskAction.valueOf(data[0]);
+        switch (action) {
+            case COMPLETE -> {
+                Long id = Long.valueOf(data[1]);
+                taskService.completeTask(id);
+            }
+            case EDIT -> {
+
+            }
+        }
+    }
 
     public void createUser(User user, Long chatId) {
         md.zibliuc.taskmanagerbot.database.entity.User localUser = userService.getByChatId(chatId);
@@ -175,36 +201,34 @@ public class MessageService {
 
     }
 
-    public void proceedTask(Long chatId, String callBackData) {
+    public void proceedTask(Long chatId, Integer messageId, String callBackData, UserContext context) {
         if (!callBackData.startsWith("TASK:")) {
             return;
         }
 
         Long taskId = Long.valueOf(callBackData.replace("TASK:", ""));
         Task currentTask = taskService.get(taskId);
-        userStateService.get(chatId).setState(UserState.IDLE);
 
-        if (currentTask == null) {
-            return;
+        if (currentTask != null) {
+            telegramBot.execute(
+                    new EditMessageText(chatId, messageId, "Задание: " + currentTask.getName())
+                            .replyMarkup(crudKeyboard(chatId))
+            );
+            context.setState(UserState.WAITING_TASK_ACTION);
         }
-
-        telegramBot.execute(
-                new SendMessage(chatId.longValue(), "Задание: " + currentTask.getName())
-                        .replyMarkup(crudKeyboard(chatId))
-        );
     }
 
     public InlineKeyboardMarkup crudKeyboard(Long taskId) {
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
 
         kb.addRow(new InlineKeyboardButton("Выполнить")
-                        .callbackData("DONE:" + taskId));
+                        .callbackData("COMPLETE:" + taskId));
         kb.addRow(new InlineKeyboardButton("Удалить")
                 .callbackData("DELETE:" + taskId));
         kb.addRow(new InlineKeyboardButton("Изменить")
                 .callbackData("EDIT:" + taskId));
         kb.addRow(new InlineKeyboardButton("Отмена")
-                .callbackData("CANCEL"));
+                .callbackData("CANCEL:"));
 
         return kb;
     }
