@@ -29,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageService {
     private static final Logger LOGGER = LogManager.getLogger(MessageService.class);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("E, dd MMM yyyy HH:mm");
 
     private final TelegramBot telegramBot;
     private final UserStateService userStateService;
@@ -85,7 +86,7 @@ public class MessageService {
                     showTaskList(chatId, user.getTasks());
                 }
                 yield "";
-            } case "/current" -> {
+            } case "/uncompleted" -> {
                 context.setState(UserState.WAITING_TASK);
                 md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
                 if (user != null) {
@@ -107,7 +108,6 @@ public class MessageService {
                 context.setState(UserState.WAITING_DATE);
 
                 telegramBot.execute(new SendMessage(chatId.longValue(),
-//                        "Выберите дату, либо введите в ручную в формате (dd MM)")
                           "Выберите дату")
                         .replyMarkup(dateKeyboard())
                 );
@@ -153,14 +153,15 @@ public class MessageService {
                         chatId.longValue(),
                         "Задача создана:\n"
                                 + context.getTitle() + "\n"
-                                + "Время: " + deadline
+                                + "Время: " + DATE_TIME_FORMATTER.format(deadline)
                 ));
 
                 userStateService.reset(chatId);
             }
+            default -> userStateService.reset(chatId);
         }
     }
-    //TODO: add implementation for edit and delete action
+    //TODO: add implementation for edit
     public void proceedTaskAction(Long chatId, Integer messageId, String callBackData, UserContext context) {
         String[] data = callBackData.split(":");
         if (data.length != 2) {
@@ -228,8 +229,10 @@ public class MessageService {
         Task currentTask = taskService.get(taskId);
 
         if (currentTask != null) {
+            String answer = "Задание: " + currentTask.getName()
+                    + "\nЗапланирован на: " + DATE_TIME_FORMATTER.format(currentTask.getDeadline());
             telegramBot.execute(
-                    new EditMessageText(chatId, messageId, "Задание: " + currentTask.getName())
+                    new EditMessageText(chatId, messageId, answer)
                             .replyMarkup(crudKeyboard(taskId))
             );
             context.setState(UserState.WAITING_TASK_ACTION);

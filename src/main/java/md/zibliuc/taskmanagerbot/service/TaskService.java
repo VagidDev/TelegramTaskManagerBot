@@ -36,6 +36,13 @@ public class TaskService {
         return tasks;
     }
 
+    public List<Task> getCurrentTasksForNotification() {
+        LocalDateTime start = LocalDateTime.now();
+        LocalDateTime end = LocalDateTime.now().plusMinutes(1);
+
+        return repository.findByDeadlineBetweenAndIsCompleted(start, end, false).forEach(task -> System.out.println(task.getName()));
+    }
+
     public void save(Task task) {
         if (task == null) {
             LOGGER.warn("Cannot save `null` task!");
