@@ -6,6 +6,7 @@ import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import md.zibliuc.taskmanagerbot.context.TaskAction;
 import md.zibliuc.taskmanagerbot.context.UserContext;
 import md.zibliuc.taskmanagerbot.context.UserState;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -25,6 +28,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MessageService {
+    private static final Logger LOGGER = LogManager.getLogger(MessageService.class);
+
     private final TelegramBot telegramBot;
     private final UserStateService userStateService;
     private final TaskService taskService;
@@ -78,6 +83,13 @@ public class MessageService {
                 md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
                 if (user != null) {
                     showTaskList(chatId, user.getTasks());
+                }
+                yield "";
+            } case "/current" -> {
+                context.setState(UserState.WAITING_TASK);
+                md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
+                if (user != null) {
+                    showTaskList(chatId, user.getUncompletedTask());
                 }
                 yield "";
             }
@@ -150,26 +162,32 @@ public class MessageService {
     }
     //TODO: add implementation for edit and delete action
     public void proceedTaskAction(Long chatId, Integer messageId, String callBackData, UserContext context) {
-        if(callBackData.startsWith("CANCEL")) {
-            userStateService.reset(chatId);
-            return;
-        }
-
         String[] data = callBackData.split(":");
         if (data.length != 2) {
+            LOGGER.error("Cannot parse callback data for task action. Data: {}", callBackData);
             return;
         }
 
         TaskAction action = TaskAction.valueOf(data[0]);
+        Long id = Long.valueOf(data[1]);
         switch (action) {
             case COMPLETE -> {
-                Long id = Long.valueOf(data[1]);
                 taskService.completeTask(id);
+                userStateService.reset(chatId);
             }
             case EDIT -> {
-
+                //TODO: Implement it
             }
+            case DELETE -> {
+                taskService.delete(id);
+                userStateService.reset(chatId);
+            }
+            case CANCEL -> userStateService.reset(chatId);
         }
+
+        telegramBot.execute(
+                new DeleteMessage(chatId, messageId)
+        );
     }
 
     public void createUser(User user, Long chatId) {
@@ -212,7 +230,7 @@ public class MessageService {
         if (currentTask != null) {
             telegramBot.execute(
                     new EditMessageText(chatId, messageId, "Задание: " + currentTask.getName())
-                            .replyMarkup(crudKeyboard(chatId))
+                            .replyMarkup(crudKeyboard(taskId))
             );
             context.setState(UserState.WAITING_TASK_ACTION);
         }
@@ -228,7 +246,7 @@ public class MessageService {
         kb.addRow(new InlineKeyboardButton("Изменить")
                 .callbackData("EDIT:" + taskId));
         kb.addRow(new InlineKeyboardButton("Отмена")
-                .callbackData("CANCEL:"));
+                .callbackData("CANCEL:" + taskId));
 
         return kb;
     }

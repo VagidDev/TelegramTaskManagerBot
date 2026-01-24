@@ -4,4 +4,5 @@ public enum TaskAction {
     DELETE,
     EDIT,
     COMPLETE,
+    CANCEL,
 }

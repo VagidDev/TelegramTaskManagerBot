@@ -27,4 +27,10 @@ public class User {
     )
     private List<Task> tasks;
 
+    public List<Task> getUncompletedTask() {
+        return tasks.stream()
+                .filter(task -> !task.isCompleted())
+                .toList();
+    }
+
 }

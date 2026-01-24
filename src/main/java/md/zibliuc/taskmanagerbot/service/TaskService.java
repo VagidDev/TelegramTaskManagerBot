@@ -64,8 +64,12 @@ public class TaskService {
 
     public void completeTask(Long id) {
         Task task = get(id);
-        task.setCompleted(true);
-        save(task);
+        if (task != null) {
+            task.setCompleted(true);
+            save(task);
+        } else {
+            LOGGER.warn("No task to complete with ID `{}`", id);
+        }
     }
 
     @Deprecated
@@ -82,5 +86,9 @@ public class TaskService {
 
         Task updatedTask = repository.save(task);
         return updatedTask.getId() != null;
+    }
+
+    public void delete(Long id) {
+        repository.deleteById(id);
     }
 }
