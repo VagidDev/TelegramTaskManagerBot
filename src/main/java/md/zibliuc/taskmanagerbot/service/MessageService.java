@@ -5,6 +5,8 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.Keyboard;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.EditMessageText;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.context.TaskAction;
 import md.zibliuc.taskmanagerbot.context.UserContext;
 import md.zibliuc.taskmanagerbot.context.UserState;
+import md.zibliuc.taskmanagerbot.core.KeyboardBuilder;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +26,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.EnumSet;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +43,10 @@ public class MessageService {
         Long chatId = update.message().chat().id();
         String text = update.message().text();
         UserContext context = userStateService.get(chatId);
-        if (context.getState() == UserState.IDLE) {
-            proceedSimpleCommand(update, context, text);
-        } else {
+        if (EnumSet.of(UserState.WAITING_TITLE, UserState.WAITING_DATE, UserState.WAITING_TIME).contains(context.getState())) {
             proceedBuildTaskCommand(update, chatId, text, context);
+        } else {
+            proceedSimpleCommand(update, context, text);
         }
     }
 
@@ -69,36 +72,63 @@ public class MessageService {
 
     public void proceedSimpleCommand(Update update, UserContext context, String command) {
         Long chatId = update.message().chat().id();
-        String response = switch (command) {
+        switch (command) {
             case "/start" ->  {
                 User user = update.message().from();
                 createUser(user, chatId);
-                yield "Привет! Я Task Manager бот";
+                telegramBot.execute(new SendMessage(
+                        chatId.longValue(),
+                        "Привет! Я Task Manager бот"
+                ).replyMarkup(KeyboardBuilder.menuKeyboard()));
             }
-            case "/create" -> {
+            case "/create", "Создать задачу" -> {
                 context.setState(UserState.WAITING_TITLE);
-                yield "Введите свое задание";
+
+                telegramBot.execute(
+                        new SendMessage(
+                                chatId.longValue(),
+                                "Введите свое задание"
+                                ).replyMarkup(new ReplyKeyboardRemove())
+                );
             }
-            case "/show" -> {
+            case "/show", "Мои задачи"-> {
                 context.setState(UserState.WAITING_TASK);
                 md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
                 if (user != null) {
-                    showTaskList(chatId, user.getTasks());
+                    telegramBot.execute(
+                            new SendMessage(
+                                    chatId.longValue(),
+                                    "Что будем делать?"
+                            ).replyMarkup(KeyboardBuilder.taskKeyboard(user.getTasks()))
+                    );
                 }
-                yield "";
-            } case "/uncompleted" -> {
+            }
+            case "/uncompleted", "Невыполненные задачи" -> {
                 context.setState(UserState.WAITING_TASK);
                 md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
                 if (user != null) {
-                    showTaskList(chatId, user.getUncompletedTask());
+                    telegramBot.execute(
+                            new SendMessage(
+                                    chatId.longValue(),
+                                    "Что будем делать?"
+                            ).replyMarkup(KeyboardBuilder.taskKeyboard(user.getUncompletedTask()))
+                    );
                 }
-                yield "";
             }
-            case "/help" -> "Доступные команды: /start, /help";
-            default -> "Ты написал: " + command;
+            case "/help", "Помощь" -> telegramBot.execute(
+                    new SendMessage(
+                            chatId.longValue(),
+                            "Доступные команды: /start, /help"
+                    )
+            );
+            default -> telegramBot.execute(
+                    new SendMessage(
+                            chatId.longValue(),
+                            "Ты написал: " + command
+                    )
+            );
         };
-        if (!response.isEmpty())
-            telegramBot.execute(new SendMessage(chatId.longValue(), response));
+
     }
 
     public void proceedBuildTaskCommand(Update update, Long chatId, String text, UserContext context) {
@@ -109,7 +139,7 @@ public class MessageService {
 
                 telegramBot.execute(new SendMessage(chatId.longValue(),
                           "Выберите дату")
-                        .replyMarkup(dateKeyboard())
+                        .replyMarkup(KeyboardBuilder.dateKeyboard())
                 );
             }
             case WAITING_DATE -> {
@@ -154,7 +184,7 @@ public class MessageService {
                         "Задача создана:\n"
                                 + context.getTitle() + "\n"
                                 + "Время: " + DATE_TIME_FORMATTER.format(deadline)
-                ));
+                ).replyMarkup(KeyboardBuilder.menuKeyboard()));
 
                 userStateService.reset(chatId);
             }
@@ -204,22 +234,6 @@ public class MessageService {
         userService.save(localUser);
     }
 
-    public void showTaskList(Long chatId, List<Task> tasks) {
-        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
-
-        tasks.forEach(task -> keyboard.addRow(
-                    new InlineKeyboardButton(task.getName())
-                            .callbackData("TASK:" + task.getId().toString())
-                )
-        );
-
-        telegramBot.execute(
-                new SendMessage(chatId.longValue(), "Что будем делать?")
-                        .replyMarkup(keyboard)
-        );
-
-    }
-
     public void proceedTask(Long chatId, Integer messageId, String callBackData, UserContext context) {
         if (!callBackData.startsWith("TASK:")) {
             return;
@@ -233,49 +247,10 @@ public class MessageService {
                     + "\nЗапланирован на: " + DATE_TIME_FORMATTER.format(currentTask.getDeadline());
             telegramBot.execute(
                     new EditMessageText(chatId, messageId, answer)
-                            .replyMarkup(crudKeyboard(taskId))
+                            .replyMarkup(KeyboardBuilder.crudKeyboard(taskId))
             );
             context.setState(UserState.WAITING_TASK_ACTION);
         }
     }
 
-    public InlineKeyboardMarkup crudKeyboard(Long taskId) {
-        InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
-
-        kb.addRow(new InlineKeyboardButton("Выполнить")
-                        .callbackData("COMPLETE:" + taskId));
-        kb.addRow(new InlineKeyboardButton("Удалить")
-                .callbackData("DELETE:" + taskId));
-        kb.addRow(new InlineKeyboardButton("Изменить")
-                .callbackData("EDIT:" + taskId));
-        kb.addRow(new InlineKeyboardButton("Отмена")
-                .callbackData("CANCEL:" + taskId));
-
-        return kb;
-    }
-
-    public InlineKeyboardMarkup dateKeyboard() {
-        InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
-
-        kb.addRow(
-                new InlineKeyboardButton("Сегодня")
-                        .callbackData("DATE:TODAY")
-        );
-
-        LocalDate today = LocalDate.now();
-        for (int i = 1; i <= 5; i++) {
-            LocalDate d = today.plusDays(i);
-            kb.addRow(
-                    new InlineKeyboardButton(d.format(DateTimeFormatter.ofPattern("dd MMM")))
-                            .callbackData("DATE:" + d)
-            );
-        }
-
-        kb.addRow(
-                new InlineKeyboardButton("Отмена")
-                        .callbackData("CANCEL")
-        );
-
-        return kb;
-    }
 }

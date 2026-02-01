@@ -40,7 +40,7 @@ public class TaskService {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusMinutes(1);
 
-        return repository.findByDeadlineBetweenAndIsCompleted(start, end, false).forEach(task -> System.out.println(task.getName()));
+        return repository.findByDeadlineBetweenAndIsCompleted(start, end, false);
     }
 
     public void save(Task task) {
