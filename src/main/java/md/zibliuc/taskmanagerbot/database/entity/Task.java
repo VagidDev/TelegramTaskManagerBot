@@ -24,7 +24,7 @@ public class Task {
     @Column(nullable = false)
     private boolean sendNotification = true;
     //TODO: change it to lazy and optimize project for this
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
 }

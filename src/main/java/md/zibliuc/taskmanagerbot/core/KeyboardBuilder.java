@@ -53,10 +53,10 @@ public class KeyboardBuilder {
 
     public static ReplyKeyboardMarkup menuKeyboard() {
         return new ReplyKeyboardMarkup(
-                new KeyboardButton("Создать задачу"),
-                new KeyboardButton("Мои задачи"),
-                new KeyboardButton("Невыполненные задачи"),
-                new KeyboardButton("Помощь")
+                new KeyboardButton[]{new KeyboardButton("Создать задачу")},
+                new KeyboardButton[]{new KeyboardButton("Мои задачи")},
+                new KeyboardButton[]{new KeyboardButton("Невыполненные задачи")},
+                new KeyboardButton[]{new KeyboardButton("Помощь")}
         )
                 .resizeKeyboard(true)
                 .selective(true);

@@ -36,11 +36,8 @@ public class TaskService {
         return tasks;
     }
 
-    public List<Task> getCurrentTasksForNotification() {
-        LocalDateTime start = LocalDateTime.now();
-        LocalDateTime end = LocalDateTime.now().plusMinutes(1);
-
-        return repository.findByDeadlineBetweenAndIsCompleted(start, end, false);
+    public List<Task> getIncompletedTasksWithNotificationsForDateRange(LocalDateTime start, LocalDateTime end) {
+        return repository.findByDeadlineBetweenAndIsCompletedAndSendNotification(start, end, false, true);
     }
 
     public void save(Task task) {
@@ -77,6 +74,16 @@ public class TaskService {
         } else {
             LOGGER.warn("No task to complete with ID `{}`", id);
         }
+    }
+
+    public void turnOffNotification(Task task) {
+        task.setSendNotification(false);
+        save(task);
+    }
+
+    public void postponeTask(Task task, LocalDateTime dateTime) {
+        task.setDeadline(dateTime);
+        save(task);
     }
 
     @Deprecated
