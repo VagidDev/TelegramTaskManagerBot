@@ -3,9 +3,6 @@ package md.zibliuc.taskmanagerbot.service;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.User;
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
-import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.model.request.Keyboard;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
 import com.pengrad.telegrambot.request.AnswerCallbackQuery;
 import com.pengrad.telegrambot.request.DeleteMessage;
@@ -15,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.context.TaskAction;
 import md.zibliuc.taskmanagerbot.context.UserContext;
 import md.zibliuc.taskmanagerbot.context.UserState;
-import md.zibliuc.taskmanagerbot.core.KeyboardBuilder;
+import md.zibliuc.taskmanagerbot.core.KeyboardService;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +35,7 @@ public class MessageService {
     private final UserStateService userStateService;
     private final TaskService taskService;
     private final UserService userService;
+    private final KeyboardService keyboardService;
 
     public void processTextMessage(Update update) {
         Long chatId = update.message().chat().id();
@@ -73,13 +71,13 @@ public class MessageService {
     public void proceedSimpleCommand(Update update, UserContext context, String command) {
         Long chatId = update.message().chat().id();
         switch (command) {
-            case "/start" ->  {
+            case "/start" -> {
                 User user = update.message().from();
                 createUser(user, chatId);
                 telegramBot.execute(new SendMessage(
                         chatId.longValue(),
                         "Привет! Я Task Manager бот"
-                ).replyMarkup(KeyboardBuilder.menuKeyboard()));
+                ).replyMarkup(keyboardService.menuKeyboard()));
             }
             case "/create", "Создать задачу" -> {
                 context.setState(UserState.WAITING_TITLE);
@@ -99,7 +97,7 @@ public class MessageService {
                             new SendMessage(
                                     chatId.longValue(),
                                     "Что будем делать?"
-                            ).replyMarkup(KeyboardBuilder.taskKeyboard(user.getTasks()))
+                            ).replyMarkup(keyboardService.taskKeyboard(user.getTasks()))
                     );
                 }
             }
@@ -111,7 +109,7 @@ public class MessageService {
                             new SendMessage(
                                     chatId.longValue(),
                                     "Что будем делать?"
-                            ).replyMarkup(KeyboardBuilder.taskKeyboard(user.getUncompletedTask()))
+                            ).replyMarkup(keyboardService.taskKeyboard(user.getUncompletedTask()))
                     );
                 }
             }
@@ -127,7 +125,7 @@ public class MessageService {
                             "Ты написал: " + command
                     )
             );
-        };
+        }
 
     }
 
@@ -139,7 +137,7 @@ public class MessageService {
 
                 telegramBot.execute(new SendMessage(chatId.longValue(),
                           "Выберите дату")
-                        .replyMarkup(KeyboardBuilder.dateKeyboard())
+                        .replyMarkup(keyboardService.dateKeyboard())
                 );
             }
             case WAITING_DATE -> {
@@ -184,7 +182,7 @@ public class MessageService {
                         "Задача создана:\n"
                                 + context.getTitle() + "\n"
                                 + "Время: " + DATE_TIME_FORMATTER.format(deadline)
-                ).replyMarkup(KeyboardBuilder.menuKeyboard()));
+                ).replyMarkup(keyboardService.menuKeyboard()));
 
                 userStateService.reset(chatId);
             }
@@ -247,7 +245,7 @@ public class MessageService {
                     + "\nЗапланирован на: " + DATE_TIME_FORMATTER.format(currentTask.getDeadline());
             telegramBot.execute(
                     new EditMessageText(chatId, messageId, answer)
-                            .replyMarkup(KeyboardBuilder.crudKeyboard(taskId))
+                            .replyMarkup(keyboardService.crudKeyboard(taskId))
             );
             context.setState(UserState.WAITING_TASK_ACTION);
         }

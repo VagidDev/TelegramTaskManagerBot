@@ -1,0 +1,14 @@
+# Keyboard configuration
+ui:
+  menu:
+    crud:
+      complete: Выполнить
+      delete: Удалить
+      edit: Изменить
+      cancel: Отмена
+      postpone: Перенести
+    main:
+      create: Создать задачу
+      all: Мои задачи
+      uncompleted: Невыполненные задачи
+      help: Помощь

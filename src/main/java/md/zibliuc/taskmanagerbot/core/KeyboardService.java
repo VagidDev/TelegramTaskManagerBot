@@ -4,14 +4,27 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
+import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.config.CrudMenuConfig;
+import md.zibliuc.taskmanagerbot.config.MainMenuConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class KeyboardBuilder {
-    public static InlineKeyboardMarkup dateKeyboard() {
+@Service
+@RequiredArgsConstructor
+public class KeyboardService {
+    private static final Logger LOGGER = LogManager.getLogger(KeyboardService.class);
+
+    private final MainMenuConfig mainMenuConfig;
+    private final CrudMenuConfig crudMenuConfig;
+
+    public InlineKeyboardMarkup dateKeyboard() {
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
 
         kb.addRow(
@@ -36,33 +49,39 @@ public class KeyboardBuilder {
         return kb;
     }
 
-    public static InlineKeyboardMarkup crudKeyboard(Long taskId) {
+    public InlineKeyboardMarkup crudKeyboard(Long taskId) {
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
-
-        kb.addRow(new InlineKeyboardButton("Выполнить")
+        LOGGER.debug(
+                "Trying to create CRUD menu with values for complete -> {}, delete -> {}, edit -> {}, cancel -> {}",
+                crudMenuConfig.getComplete(),
+                crudMenuConfig.getDelete(),
+                crudMenuConfig.getEdit(),
+                crudMenuConfig.getCancel()
+        );
+        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getComplete())
                 .callbackData("COMPLETE:" + taskId));
-        kb.addRow(new InlineKeyboardButton("Удалить")
+        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getDelete())
                 .callbackData("DELETE:" + taskId));
-        kb.addRow(new InlineKeyboardButton("Изменить")
+        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getEdit())
                 .callbackData("EDIT:" + taskId));
-        kb.addRow(new InlineKeyboardButton("Отмена")
+        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getCancel())
                 .callbackData("CANCEL:" + taskId));
 
         return kb;
     }
 
-    public static ReplyKeyboardMarkup menuKeyboard() {
+    public ReplyKeyboardMarkup menuKeyboard() {
         return new ReplyKeyboardMarkup(
-                new KeyboardButton[]{new KeyboardButton("Создать задачу")},
-                new KeyboardButton[]{new KeyboardButton("Мои задачи")},
-                new KeyboardButton[]{new KeyboardButton("Невыполненные задачи")},
-                new KeyboardButton[]{new KeyboardButton("Помощь")}
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getCreate())},
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getAll())},
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getUncompleted())},
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getHelp())}
         )
                 .resizeKeyboard(true)
                 .selective(true);
     }
 
-    public static InlineKeyboardMarkup taskKeyboard(List<Task> tasks) {
+    public InlineKeyboardMarkup taskKeyboard(List<Task> tasks) {
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
 
         tasks.forEach(task -> keyboard.addRow(
