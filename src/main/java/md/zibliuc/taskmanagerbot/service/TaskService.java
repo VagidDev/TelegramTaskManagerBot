@@ -1,5 +1,6 @@
 package md.zibliuc.taskmanagerbot.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.database.entity.User;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -102,7 +104,12 @@ public class TaskService {
         return updatedTask.getId() != null;
     }
 
+    @Transactional
     public void delete(Long id) {
-        repository.deleteById(id);
+        Task task = get(id);
+        if (task != null)
+            task.getUser()
+                    .getTasks()
+                    .removeIf(t -> Objects.equals(t.getId(), id));
     }
 }
