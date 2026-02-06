@@ -211,6 +211,10 @@ public class MessageService {
                 taskService.delete(id);
                 userStateService.reset(chatId);
             }
+            case POSTPONE -> {
+                taskService.postponeTask(id, 5L);
+                userStateService.reset(chatId);
+            }
             case CANCEL -> userStateService.reset(chatId);
         }
 

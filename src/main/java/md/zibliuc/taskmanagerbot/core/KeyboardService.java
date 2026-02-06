@@ -73,8 +73,8 @@ public class KeyboardService {
     public ReplyKeyboardMarkup menuKeyboard() {
         return new ReplyKeyboardMarkup(
                 new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getCreate())},
-                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getAll())},
                 new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getUncompleted())},
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getAll())},
                 new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getHelp())}
         )
                 .resizeKeyboard(true)
@@ -90,5 +90,18 @@ public class KeyboardService {
                 )
         );
         return keyboard;
+    }
+
+    public InlineKeyboardMarkup replyForNotificationKeyboard(Long taskId) {
+        InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
+
+        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getComplete())
+                .callbackData("COMPLETE:" + taskId));
+        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getPostpone())
+                .callbackData("POSTPONE:" + taskId));
+        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getCancel())
+                .callbackData("CANCEL:" + taskId));
+
+        return kb;
     }
 }

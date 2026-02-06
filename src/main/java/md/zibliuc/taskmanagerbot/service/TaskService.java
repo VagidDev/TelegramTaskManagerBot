@@ -68,24 +68,41 @@ public class TaskService {
         save(task);
     }
 
+    @Transactional
     public void completeTask(Long id) {
         Task task = get(id);
         if (task != null) {
             task.setCompleted(true);
-            save(task);
         } else {
             LOGGER.warn("No task to complete with ID `{}`", id);
         }
     }
 
+    @Transactional
     public void turnOffNotification(Task task) {
         task.setSendNotification(false);
-        save(task);
     }
 
-    public void postponeTask(Task task, LocalDateTime dateTime) {
-        task.setDeadline(dateTime);
-        save(task);
+    @Transactional
+    public void postponeTask(Long id, Long postponeOnMinutes) {
+        if (id == null || postponeOnMinutes == null) {
+            LOGGER.error(
+                    "Cannot postpone task because of null argument. Task id -> {}, minutes for postponing -> {}",
+                            id,
+                            postponeOnMinutes
+                    );
+            return;
+        }
+
+        Task task = get(id);
+        if (task == null) {
+            LOGGER.error("Cannot find task with id {}", id);
+            return;
+        }
+
+        LocalDateTime deadline = LocalDateTime.now().plusMinutes(postponeOnMinutes);
+        task.setDeadline(deadline);
+        task.setSendNotification(true);
     }
 
     @Deprecated
