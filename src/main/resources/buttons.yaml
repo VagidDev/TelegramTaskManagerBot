@@ -8,7 +8,7 @@ ui:
       cancel: Отмена
       postpone: Напомнить через 5 мин
     main:
-      create: Создать задачу
-      all: Мои задачи
-      uncompleted: Невыполненные задачи
-      help: Помощь
+      create-command: Создать задачу
+      all-command: Мои задачи
+      uncompleted-command: Невыполненные задачи
+      help-command: Помощь

@@ -3,8 +3,8 @@ package md.zibliuc.taskmanagerbot.service;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
-import md.zibliuc.taskmanagerbot.context.UserState;
-import md.zibliuc.taskmanagerbot.core.KeyboardService;
+import md.zibliuc.taskmanagerbot.conversation.ConversationState;
+import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.database.entity.User;
 import org.apache.logging.log4j.LogManager;
@@ -55,7 +55,7 @@ public class NotificationService {
                                                 .replyMarkup(keyboardService.replyForNotificationKeyboard(task.getId()))
                                 );
 
-                                userStateService.get(user.getChatId()).setState(UserState.WAITING_TASK_ACTION);
+                                userStateService.get(user.getChatId()).setState(ConversationState.WAITING_TASK_ACTION);
                                 taskService.turnOffNotification(task);
                             } catch (Exception e) {
                                 LOGGER.error(

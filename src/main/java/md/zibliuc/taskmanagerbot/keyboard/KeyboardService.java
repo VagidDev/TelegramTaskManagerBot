@@ -1,4 +1,4 @@
-package md.zibliuc.taskmanagerbot.core;
+package md.zibliuc.taskmanagerbot.keyboard;
 
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
@@ -72,10 +72,10 @@ public class KeyboardService {
 
     public ReplyKeyboardMarkup menuKeyboard() {
         return new ReplyKeyboardMarkup(
-                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getCreate())},
-                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getUncompleted())},
-                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getAll())},
-                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getHelp())}
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getCreateCommand())},
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getUncompletedCommand())},
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getAllCommand())},
+                new KeyboardButton[]{new KeyboardButton(mainMenuConfig.getHelpCommand())}
         )
                 .resizeKeyboard(true)
                 .selective(true);

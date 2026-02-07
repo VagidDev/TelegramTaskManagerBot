@@ -10,9 +10,9 @@ import com.pengrad.telegrambot.request.EditMessageText;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.context.TaskAction;
-import md.zibliuc.taskmanagerbot.context.UserContext;
-import md.zibliuc.taskmanagerbot.context.UserState;
-import md.zibliuc.taskmanagerbot.core.KeyboardService;
+import md.zibliuc.taskmanagerbot.conversation.ConversationContext;
+import md.zibliuc.taskmanagerbot.conversation.ConversationState;
+import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,8 +40,8 @@ public class MessageService {
     public void processTextMessage(Update update) {
         Long chatId = update.message().chat().id();
         String text = update.message().text();
-        UserContext context = userStateService.get(chatId);
-        if (EnumSet.of(UserState.WAITING_TITLE, UserState.WAITING_DATE, UserState.WAITING_TIME).contains(context.getState())) {
+        ConversationContext context = userStateService.get(chatId);
+        if (EnumSet.of(ConversationState.WAITING_TITLE, ConversationState.WAITING_DATE, ConversationState.WAITING_TIME).contains(context.getState())) {
             proceedBuildTaskCommand(update, chatId, text, context);
         } else {
             proceedSimpleCommand(update, context, text);
@@ -53,7 +53,7 @@ public class MessageService {
         Long chatId = update.callbackQuery().maybeInaccessibleMessage().chat().id();
         Integer messageId = update.callbackQuery().maybeInaccessibleMessage().messageId();
         String text = update.callbackQuery().data();
-        UserContext context = userStateService.get(chatId);
+        ConversationContext context = userStateService.get(chatId);
 
         switch (context.getState()) {
             case WAITING_DATE ->
@@ -68,7 +68,7 @@ public class MessageService {
         telegramBot.execute(new AnswerCallbackQuery(update.callbackQuery().id()));
     }
 
-    public void proceedSimpleCommand(Update update, UserContext context, String command) {
+    public void proceedSimpleCommand(Update update, ConversationContext context, String command) {
         Long chatId = update.message().chat().id();
         switch (command) {
             case "/start" -> {
@@ -80,7 +80,7 @@ public class MessageService {
                 ).replyMarkup(keyboardService.menuKeyboard()));
             }
             case "/create", "Создать задачу" -> {
-                context.setState(UserState.WAITING_TITLE);
+                context.setState(ConversationState.WAITING_TITLE);
 
                 telegramBot.execute(
                         new SendMessage(
@@ -90,7 +90,7 @@ public class MessageService {
                 );
             }
             case "/show", "Мои задачи"-> {
-                context.setState(UserState.WAITING_TASK);
+                context.setState(ConversationState.WAITING_TASK);
                 md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
                 if (user != null) {
                     telegramBot.execute(
@@ -102,7 +102,7 @@ public class MessageService {
                 }
             }
             case "/uncompleted", "Невыполненные задачи" -> {
-                context.setState(UserState.WAITING_TASK);
+                context.setState(ConversationState.WAITING_TASK);
                 md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
                 if (user != null) {
                     telegramBot.execute(
@@ -129,11 +129,11 @@ public class MessageService {
 
     }
 
-    public void proceedBuildTaskCommand(Update update, Long chatId, String text, UserContext context) {
+    public void proceedBuildTaskCommand(Update update, Long chatId, String text, ConversationContext context) {
         switch (context.getState()) {
             case WAITING_TITLE -> {
                 context.setTitle(text);
-                context.setState(UserState.WAITING_DATE);
+                context.setState(ConversationState.WAITING_DATE);
 
                 telegramBot.execute(new SendMessage(chatId.longValue(),
                           "Выберите дату")
@@ -147,7 +147,7 @@ public class MessageService {
                             : LocalDate.parse(text.replace("DATE:", ""));
 
                     context.setDate(date);
-                    context.setState(UserState.WAITING_TIME);
+                    context.setState(ConversationState.WAITING_TIME);
                     // TODO: replace editing message, or improve it
                     telegramBot.execute(new EditMessageText(
                             chatId,
@@ -190,7 +190,7 @@ public class MessageService {
         }
     }
     //TODO: add implementation for edit
-    public void proceedTaskAction(Long chatId, Integer messageId, String callBackData, UserContext context) {
+    public void proceedTaskAction(Long chatId, Integer messageId, String callBackData, ConversationContext context) {
         String[] data = callBackData.split(":");
         if (data.length != 2) {
             LOGGER.error("Cannot parse callback data for task action. Data: {}", callBackData);
@@ -236,7 +236,7 @@ public class MessageService {
         userService.save(localUser);
     }
 
-    public void proceedTask(Long chatId, Integer messageId, String callBackData, UserContext context) {
+    public void proceedTask(Long chatId, Integer messageId, String callBackData, ConversationContext context) {
         if (!callBackData.startsWith("TASK:")) {
             return;
         }
@@ -251,7 +251,7 @@ public class MessageService {
                     new EditMessageText(chatId, messageId, answer)
                             .replyMarkup(keyboardService.crudKeyboard(taskId))
             );
-            context.setState(UserState.WAITING_TASK_ACTION);
+            context.setState(ConversationState.WAITING_TASK_ACTION);
         }
     }
 
