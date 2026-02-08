@@ -15,6 +15,9 @@ public class StartCommand implements ProceedCommand {
 
     @Override
     public OutgoingMessage proceed(IncomingMessage message) {
-        return null;
+        userService.ensureUserExists(message.userData());
+        return OutgoingMessage
+                .send(message.chatId(), "Привет! Я Task Manager бот, чем могу быть полезен?")
+                .keyboard(keyboardService.menuKeyboard());
     }
 }

@@ -19,6 +19,7 @@ public class MainMenuConfig {
 
     @Bean
     public Set<String> supportedCommands() {
-        return Set.of(createCommand, allCommand, uncompletedCommand, helpCommand);
+        //мне стыдно за этот костыль, но а кому сейчас легко?
+        return Set.of("/start",createCommand, allCommand, uncompletedCommand, helpCommand);
     }
 }
