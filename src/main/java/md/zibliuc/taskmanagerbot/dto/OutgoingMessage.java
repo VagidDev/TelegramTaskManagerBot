@@ -1,14 +1,15 @@
 package md.zibliuc.taskmanagerbot.dto;
 
-import com.pengrad.telegrambot.model.MessageId;
 import com.pengrad.telegrambot.model.request.Keyboard;
-import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove;
+import lombok.Getter;
 
+@Getter
 public class OutgoingMessage {
     private Long chatId;
     private String text;
     private Integer messageId;
-    private KeyboardType keyboardType;
+    //TODO: create logic that will avoid using telegrambot.api
+    private Keyboard keyboard;
     private MessageAction action;
 
     private static OutgoingMessage base(Long chatId, String text, MessageAction action) {
@@ -37,8 +38,8 @@ public class OutgoingMessage {
         return message;
     }
 
-    public OutgoingMessage keyboard(KeyboardType keyboardType) {
-        this.keyboardType = keyboardType;
+    public OutgoingMessage keyboard(Keyboard keyboard) {
+        this.keyboard = keyboard;
         return this;
     }
 

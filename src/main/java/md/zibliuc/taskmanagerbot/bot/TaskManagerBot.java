@@ -7,10 +7,16 @@ import md.zibliuc.taskmanagerbot.handler.MessageHandler;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 public class TaskManagerBot {
     private final TelegramBot telegramBot;
     private final TelegramUpdateListener updateListener;
+
+    public TaskManagerBot(TelegramBot telegramBot,
+                       TelegramUpdateListener updateListener) {
+        this.telegramBot = telegramBot;
+        this.updateListener = updateListener;
+        start();
+    }
 
     public void start() {
         telegramBot.setUpdatesListener(updates -> {

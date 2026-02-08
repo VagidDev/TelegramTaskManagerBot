@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.context.TaskAction;
 import md.zibliuc.taskmanagerbot.conversation.ConversationContext;
 import md.zibliuc.taskmanagerbot.conversation.ConversationState;
+import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import org.apache.logging.log4j.LogManager;
@@ -91,25 +92,25 @@ public class MessageService {
             }
             case "/show", "Мои задачи"-> {
                 context.setState(ConversationState.WAITING_TASK);
-                md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
-                if (user != null) {
+                BotUser botUser = userService.getByChatId(chatId);
+                if (botUser != null) {
                     telegramBot.execute(
                             new SendMessage(
                                     chatId.longValue(),
                                     "Что будем делать?"
-                            ).replyMarkup(keyboardService.taskKeyboard(user.getTasks()))
+                            ).replyMarkup(keyboardService.taskKeyboard(botUser.getTasks()))
                     );
                 }
             }
             case "/uncompleted", "Невыполненные задачи" -> {
                 context.setState(ConversationState.WAITING_TASK);
-                md.zibliuc.taskmanagerbot.database.entity.User user = userService.getByChatId(chatId);
-                if (user != null) {
+                BotUser botUser = userService.getByChatId(chatId);
+                if (botUser != null) {
                     telegramBot.execute(
                             new SendMessage(
                                     chatId.longValue(),
                                     "Что будем делать?"
-                            ).replyMarkup(keyboardService.taskKeyboard(user.getUncompletedTask()))
+                            ).replyMarkup(keyboardService.taskKeyboard(botUser.getUncompletedTask()))
                     );
                 }
             }
@@ -224,16 +225,16 @@ public class MessageService {
     }
 
     public void createUser(User user, Long chatId) {
-        md.zibliuc.taskmanagerbot.database.entity.User localUser = userService.getByChatId(chatId);
+        BotUser localBotUser = userService.getByChatId(chatId);
 
-        if (localUser == null) {
-            localUser =
-                    new md.zibliuc.taskmanagerbot.database.entity.User(
+        if (localBotUser == null) {
+            localBotUser =
+                    new BotUser(
                             null, chatId, user.firstName(), user.lastName(), user.username(), new ArrayList<>()
                     );
         }
 
-        userService.save(localUser);
+        userService.save(localBotUser);
     }
 
     public void proceedTask(Long chatId, Integer messageId, String callBackData, ConversationContext context) {

@@ -1,6 +1,6 @@
 package md.zibliuc.taskmanagerbot.service;
 
-import md.zibliuc.taskmanagerbot.database.entity.User;
+import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import md.zibliuc.taskmanagerbot.database.repository.UserCrudRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,25 +15,25 @@ public class UserService {
         this.repository = repository;
     }
 
-    public User getById(Long id) {
+    public BotUser getById(Long id) {
         return repository.findById(id).orElse(null);
     }
 
-    public User getByChatId(Long chatId) {
+    public BotUser getByChatId(Long chatId) {
         return repository.findByChatId(chatId).orElse(null);
     }
 
-    public List<User> getAll() {
-        List<User> users = new ArrayList<>();
+    public List<BotUser> getAll() {
+        List<BotUser> botUsers = new ArrayList<>();
 
-        for (User user :  repository.findAll()) {
-            users.add(user);
+        for (BotUser botUser :  repository.findAll()) {
+            botUsers.add(botUser);
         }
 
-        return users;
+        return botUsers;
     }
 
-    public void save(User user) {
-        repository.save(user);
+    public void save(BotUser botUser) {
+        repository.save(botUser);
     }
 }

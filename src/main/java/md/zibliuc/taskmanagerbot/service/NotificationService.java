@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.conversation.ConversationState;
 import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
-import md.zibliuc.taskmanagerbot.database.entity.User;
+import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -40,29 +40,29 @@ public class NotificationService {
         tasks.forEach(task ->
                 EXECUTOR_SERVICE.submit(() -> {
                             try {
-                                User user = task.getUser();
+                                BotUser botUser = task.getBotUser();
 
                                 LOGGER.debug(
                                         "Trying to send notification to user {} for task with id {} in chat with id {}",
-                                        user.getUsername(),
+                                        botUser.getUsername(),
                                         task.getId(),
-                                        user.getChatId()
+                                        botUser.getChatId()
                                 );
                                 telegramBot.execute(
                                         new SendMessage(
-                                                user.getChatId().longValue(),
+                                                botUser.getChatId().longValue(),
                                                 "Время приступить к заданию:\n" + task.getName())
                                                 .replyMarkup(keyboardService.replyForNotificationKeyboard(task.getId()))
                                 );
 
-                                userStateService.get(user.getChatId()).setState(ConversationState.WAITING_TASK_ACTION);
+                                userStateService.get(botUser.getChatId()).setState(ConversationState.WAITING_TASK_ACTION);
                                 taskService.turnOffNotification(task);
                             } catch (Exception e) {
                                 LOGGER.error(
                                         "Error occurred while trying to send notification of task {} to user {} with chat id {}. Error -> {}",
                                         task.getId(),
-                                        task.getUser().getId(),
-                                        task.getUser().getChatId(),
+                                        task.getBotUser().getId(),
+                                        task.getBotUser().getChatId(),
                                         e.getLocalizedMessage(),
                                         e
                                 );

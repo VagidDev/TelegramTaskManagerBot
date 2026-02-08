@@ -5,7 +5,7 @@ import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ShowTasksCommand implements ProceedCommand {
+public class ShowUncompletedTasksCommand implements ProceedCommand {
     @Override
     public OutgoingMessage proceed(IncomingMessage message) {
         return null;

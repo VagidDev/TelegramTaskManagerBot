@@ -11,10 +11,11 @@ public class UpdateDispatcher {
     private final CallbackDispatcher callbackDispatcher;
 
     public void dispatch(Update update) {
+        //TODO: test if method receiving null from update.message() when sending callback
         if (update.message() != null && update.message().text() != null) {
-            textMessageDispatcher.dispatch(update);
+            textMessageDispatcher.dispatch(update.message());
         } else if (update.callbackQuery() != null) {
-            callbackDispatcher.dispatch(update);
+            callbackDispatcher.dispatch(update.callbackQuery());
         }
         //TODO: delegate by update type
     }

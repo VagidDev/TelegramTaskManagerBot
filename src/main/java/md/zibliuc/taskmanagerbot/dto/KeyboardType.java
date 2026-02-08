@@ -1,7 +1,10 @@
 package md.zibliuc.taskmanagerbot.dto;
-
+//Not using yet
 public enum KeyboardType {
-    DELETE,
-    EDIT,
-    NEW
+    DATE,
+    CRUD,
+    MENU,
+    TASK,
+    REPLY_NOTIFICATION,
+    REMOVE
 }

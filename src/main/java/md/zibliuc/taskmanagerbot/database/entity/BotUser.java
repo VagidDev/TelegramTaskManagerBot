@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @ToString
-public class User {
+public class BotUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,7 +20,7 @@ public class User {
     private String lastName;
     private String username;
     //TODO: change it to lazy and optimize project for this
-    @OneToMany(mappedBy = "user",
+    @OneToMany(mappedBy = "botUser",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.EAGER

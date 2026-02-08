@@ -1,7 +1,9 @@
 package md.zibliuc.taskmanagerbot.dto;
 
-public class IncomingMessage {
-    private Long chatId;
-    private String text;
-    private Long messageId;
-}
+public record IncomingMessage (
+    Long chatId,
+    Integer messageId,
+    String text,
+    TelegramUserData userData
+)
+{ }

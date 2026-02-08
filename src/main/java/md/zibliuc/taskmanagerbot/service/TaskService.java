@@ -3,7 +3,7 @@ package md.zibliuc.taskmanagerbot.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
-import md.zibliuc.taskmanagerbot.database.entity.User;
+import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import md.zibliuc.taskmanagerbot.database.repository.TaskCrudRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,16 +52,16 @@ public class TaskService {
     }
 
     public void save(Long chatId, String title, LocalDateTime dateTime) {
-        User user = userService.getByChatId(chatId);
+        BotUser botUser = userService.getByChatId(chatId);
 
-        if (user == null) {
+        if (botUser == null) {
             LOGGER.warn("No user for task with chatID `{}`", chatId);
             return;
         }
 
         Task task = new Task();
 
-        task.setUser(user);
+        task.setBotUser(botUser);
         task.setName(title);
         task.setDeadline(dateTime);
 
@@ -125,7 +125,7 @@ public class TaskService {
     public void delete(Long id) {
         Task task = get(id);
         if (task != null)
-            task.getUser()
+            task.getBotUser()
                     .getTasks()
                     .removeIf(t -> Objects.equals(t.getId(), id));
     }
