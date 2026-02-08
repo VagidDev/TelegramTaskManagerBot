@@ -7,11 +7,14 @@ import md.zibliuc.taskmanagerbot.command.CommandHandler;
 import md.zibliuc.taskmanagerbot.conversation.TaskConversationService;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.TelegramUserData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class TextMessageDispatcher {
+    private static final Logger LOGGER = LogManager.getLogger(TextMessageDispatcher.class);
     private final CommandHandler commandHandler;
     private final TaskConversationService taskConversationService;
 
@@ -31,6 +34,7 @@ public class TextMessageDispatcher {
         );
 
         if (commandHandler.supports(message.text())) {
+            LOGGER.debug("Received command -> {}", incomingMessage.text());
             commandHandler.handle(incomingMessage);
             return;
         }

@@ -28,7 +28,7 @@ public class NotificationService {
     private final KeyboardService keyboardService;
     private final UserStateService userStateService;
 
-    @Scheduled(fixedRate = 60_000)
+    //@Scheduled(fixedRate = 60_000)
     public void sendNotifications() {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now().plusSeconds(65); //for exclude loosing tasks between sending notifications
