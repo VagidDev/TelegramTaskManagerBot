@@ -1,10 +1,7 @@
 package md.zibliuc.taskmanagerbot.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.request.AbstractSendRequest;
-import com.pengrad.telegrambot.request.DeleteMessage;
-import com.pengrad.telegrambot.request.EditMessageText;
-import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.request.*;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
@@ -26,6 +23,10 @@ public class TelegramSender {
             case DELETE -> deleteMessage(message);
             default -> LOGGER.warn("Undefined message action -> {}", message.getAction());
         }
+    }
+
+    public void proceededCallbackQuery(String callbackQueryId) {
+        telegramBot.execute(new AnswerCallbackQuery(callbackQueryId));
     }
 
     private void sendMessage(OutgoingMessage msg) {

@@ -7,15 +7,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class UserStateService {
-    private final Map<Long, ConversationContext> users = new ConcurrentHashMap<>();
+public class UserConversationStateService {
+    private final Map<Long, ConversationContext> userConversationContext = new ConcurrentHashMap<>();
 
     public ConversationContext get(Long chatId) {
-        return users.computeIfAbsent(chatId, id -> new ConversationContext());
+        return userConversationContext.computeIfAbsent(chatId, id -> new ConversationContext());
     }
 
     public void reset(Long chatId) {
-        users.remove(chatId);
+        userConversationContext.remove(chatId);
     }
 
 }

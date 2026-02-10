@@ -15,6 +15,7 @@ public class CommandConfig {
     private final MainMenuConfig menuConfig;
 
     private final StartCommand startCommand;
+    private final CreateCommand createCommand;
     private final ShowUncompletedTasksCommand showUncompletedTasksCommand;
     private final ShowTasksCommand showTasksCommand;
     private final HelpCommand helpCommand;
@@ -25,6 +26,7 @@ public class CommandConfig {
         Map<String, ProceedCommand> commands = new HashMap<>();
         //kostili
         commands.put("/start", startCommand);
+        commands.put(menuConfig.getCreateCommand(), createCommand);
         commands.put(menuConfig.getUncompletedCommand(), showUncompletedTasksCommand);
         commands.put(menuConfig.getAllCommand(), showTasksCommand);
         commands.put(menuConfig.getHelpCommand(), helpCommand);

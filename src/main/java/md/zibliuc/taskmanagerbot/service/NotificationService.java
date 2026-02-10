@@ -9,7 +9,6 @@ import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,7 +25,7 @@ public class NotificationService {
     private final TelegramBot telegramBot;
     private final TaskService taskService;
     private final KeyboardService keyboardService;
-    private final UserStateService userStateService;
+    private final UserConversationStateService userConversationStateService;
 
     //@Scheduled(fixedRate = 60_000)
     public void sendNotifications() {
@@ -55,7 +54,7 @@ public class NotificationService {
                                                 .replyMarkup(keyboardService.replyForNotificationKeyboard(task.getId()))
                                 );
 
-                                userStateService.get(botUser.getChatId()).setState(ConversationState.WAITING_TASK_ACTION);
+                                userConversationStateService.get(botUser.getChatId()).setState(ConversationState.WAITING_TASK_ACTION);
                                 taskService.turnOffNotification(task);
                             } catch (Exception e) {
                                 LOGGER.error(

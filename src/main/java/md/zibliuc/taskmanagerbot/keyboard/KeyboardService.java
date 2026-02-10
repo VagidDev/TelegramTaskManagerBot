@@ -1,9 +1,6 @@
 package md.zibliuc.taskmanagerbot.keyboard;
 
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
-import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.model.request.KeyboardButton;
-import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.*;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.config.CrudMenuConfig;
 import md.zibliuc.taskmanagerbot.config.MainMenuConfig;
@@ -103,5 +100,9 @@ public class KeyboardService {
                 .callbackData("CANCEL:" + taskId));
 
         return kb;
+    }
+
+    public Keyboard removeKeyboard() {
+        return new ReplyKeyboardRemove();
     }
 }

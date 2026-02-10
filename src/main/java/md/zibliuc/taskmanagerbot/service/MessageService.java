@@ -33,7 +33,7 @@ public class MessageService {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("E, dd MMM yyyy HH:mm");
 
     private final TelegramBot telegramBot;
-    private final UserStateService userStateService;
+    private final UserConversationStateService userConversationStateService;
     private final TaskService taskService;
     private final UserService userService;
     private final KeyboardService keyboardService;
@@ -41,7 +41,7 @@ public class MessageService {
     public void processTextMessage(Update update) {
         Long chatId = update.message().chat().id();
         String text = update.message().text();
-        ConversationContext context = userStateService.get(chatId);
+        ConversationContext context = userConversationStateService.get(chatId);
         if (EnumSet.of(ConversationState.WAITING_TITLE, ConversationState.WAITING_DATE, ConversationState.WAITING_TIME).contains(context.getState())) {
             proceedBuildTaskCommand(update, chatId, text, context);
         } else {
@@ -54,7 +54,7 @@ public class MessageService {
         Long chatId = update.callbackQuery().maybeInaccessibleMessage().chat().id();
         Integer messageId = update.callbackQuery().maybeInaccessibleMessage().messageId();
         String text = update.callbackQuery().data();
-        ConversationContext context = userStateService.get(chatId);
+        ConversationContext context = userConversationStateService.get(chatId);
 
         switch (context.getState()) {
             case WAITING_DATE ->
@@ -185,9 +185,9 @@ public class MessageService {
                                 + "Время: " + DATE_TIME_FORMATTER.format(deadline)
                 ).replyMarkup(keyboardService.menuKeyboard()));
 
-                userStateService.reset(chatId);
+                userConversationStateService.reset(chatId);
             }
-            default -> userStateService.reset(chatId);
+            default -> userConversationStateService.reset(chatId);
         }
     }
     //TODO: add implementation for edit
@@ -203,20 +203,20 @@ public class MessageService {
         switch (action) {
             case COMPLETE -> {
                 taskService.completeTask(id);
-                userStateService.reset(chatId);
+                userConversationStateService.reset(chatId);
             }
             case EDIT -> {
                 //TODO: Implement it
             }
             case DELETE -> {
                 taskService.delete(id);
-                userStateService.reset(chatId);
+                userConversationStateService.reset(chatId);
             }
             case POSTPONE -> {
                 taskService.postponeTask(id, 5L);
-                userStateService.reset(chatId);
+                userConversationStateService.reset(chatId);
             }
-            case CANCEL -> userStateService.reset(chatId);
+            case CANCEL -> userConversationStateService.reset(chatId);
         }
 
         telegramBot.execute(
