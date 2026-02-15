@@ -14,12 +14,23 @@ public class CallbackDataParser {
         LOGGER.info("Get string for parsing -> {}", callback);
         String[] splitCallback = callback.split(":");
         if (splitCallback.length != 2) {
-            //LO
-            // Maybe create exception
-            throw new IllegalStateException("Cannot parse callback data: " + callback);
+            LOGGER.error("Split callback length is {}, but required 2, received callback -> {}",
+                    splitCallback.length,
+                    callback
+            );
+            return new CallbackData(CallbackType.UNDEFINED, "");
         }
-        CallbackType callbackType = CallbackType.valueOf(splitCallback[0]);
-        String payload = splitCallback[1];
-        return new CallbackData(callbackType, payload);
+
+        try {
+            CallbackType callbackType = CallbackType.valueOf(splitCallback[0]);
+            String payload = splitCallback[1];
+            return new CallbackData(callbackType, payload);
+        } catch (IllegalStateException e) {
+            LOGGER.error("Cannot parse value of callback {}",
+                    callback,
+                    e
+            );
+            return new CallbackData(CallbackType.UNDEFINED, "");
+        }
     }
 }

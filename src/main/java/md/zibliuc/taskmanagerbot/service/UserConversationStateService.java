@@ -11,7 +11,11 @@ public class UserConversationStateService {
     private final Map<Long, ConversationContext> userConversationContext = new ConcurrentHashMap<>();
 
     public ConversationContext get(Long chatId) {
-        return userConversationContext.computeIfAbsent(chatId, id -> new ConversationContext());
+        return userConversationContext.computeIfAbsent(chatId, id -> {
+            ConversationContext ctx = new ConversationContext();
+            ctx.setChatId(id);
+            return ctx;
+        });
     }
 
     public void reset(Long chatId) {

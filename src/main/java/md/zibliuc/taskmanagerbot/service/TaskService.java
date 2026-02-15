@@ -9,7 +9,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +42,25 @@ public class TaskService {
 
     public List<Task> getIncompletedTasksWithNotificationsForDateRange(LocalDateTime start, LocalDateTime end) {
         return repository.findByDeadlineBetweenAndIsCompletedAndSendNotification(start, end, false, true);
+    }
+
+    public Task createTask(Long chatId, String title, LocalDate date, LocalTime time) {
+        LocalDateTime dateTime = LocalDateTime.of(date, time);
+        BotUser user = userService.getByChatId(chatId);
+        if (user == null) {
+            LOGGER.error("Cannot find user for chat id {}", chatId);
+            return null;
+        }
+
+        Task task = new Task(
+                null,
+                title,
+                dateTime,
+                user
+        );
+
+        save(task);
+        return task;
     }
 
     public void save(Task task) {

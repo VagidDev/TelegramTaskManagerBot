@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tasks")
-@RequiredArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -25,4 +25,11 @@ public class Task {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private BotUser botUser;
+
+    public Task(Long id, String name, LocalDateTime deadline, BotUser botUser) {
+        this.id = id;
+        this.name = name;
+        this.deadline = deadline;
+        this.botUser = botUser;
+    }
 }

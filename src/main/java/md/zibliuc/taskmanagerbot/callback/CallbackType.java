@@ -3,5 +3,7 @@ package md.zibliuc.taskmanagerbot.callback;
 public enum CallbackType {
     TASK,
     ACTION,
-    DATE
+    DATE,
+    // Like exception, but without exception
+    UNDEFINED
 }

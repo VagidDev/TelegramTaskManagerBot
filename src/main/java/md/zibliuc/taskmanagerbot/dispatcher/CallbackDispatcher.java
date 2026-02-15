@@ -39,7 +39,8 @@ public class CallbackDispatcher {
                 LOGGER.warn("Not implemented yet! Incoming message received -> {}", incomingMessage);
                 yield null;
             }
-            default -> {
+            //TODO: add logic for callback CANCEL
+            case UNDEFINED -> {
                 LOGGER.warn("Undefined callback! Incoming message with callback received -> {}", incomingMessage);
                 yield OutgoingMessage.send(incomingMessage.chatId(), "Вот это поворот, что-то новенькое....");
             }

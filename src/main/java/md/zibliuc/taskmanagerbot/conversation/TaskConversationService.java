@@ -2,11 +2,13 @@ package md.zibliuc.taskmanagerbot.conversation;
 
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.bot.TelegramSender;
+import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.TaskService;
 import md.zibliuc.taskmanagerbot.service.UserConversationStateService;
+import md.zibliuc.taskmanagerbot.util.DateTimeUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -30,10 +32,13 @@ public class TaskConversationService {
 
         OutgoingMessage outgoingMessage = switch (ctx.getState()) {
             case WAITING_TITLE -> onTitle(message.chatId(), message.text(), ctx);
-            //case WAITING_TIME -> onTime();
-            default -> OutgoingMessage
+            case WAITING_TIME -> onTime(message.chatId(), message.text(), ctx);
+            default -> {
+                conversationStateService.reset(message.chatId());
+                yield OutgoingMessage
                     .send(message.chatId(),"Unexpected value: " + ctx.getState())
                     .keyboard(keyboardService.menuKeyboard());
+            }
         };
 
         telegramSender.send(outgoingMessage);
@@ -48,8 +53,33 @@ public class TaskConversationService {
     }
     // Will be at callback processor
     // public void onDate(Long chatId, LocalDate date) {}
-    public OutgoingMessage onTime(Long chatId, LocalTime time) {
-        return null;
+
+    public OutgoingMessage onTime(Long chatId, String text, ConversationContext ctx) {
+        try {
+            //TODO: create check regex because Exception take a lot of resources
+            LocalTime time = LocalTime.parse(text);
+            ctx.setTime(time);
+
+            Task createdTask = taskService.createTask(
+                    ctx.getChatId(),
+                    ctx.getTitle(),
+                    ctx.getDate(),
+                    ctx.getTime()
+            );
+
+            conversationStateService.reset(chatId);
+
+            if (createdTask != null) {
+                return OutgoingMessage.send(chatId, "Задание создано успешно!\n"
+                        + "Задание: " + createdTask.getName() + "\n"
+                        + "Время: " + DateTimeUtil.parseToString(createdTask.getDeadline()));
+            }
+            LOGGER.error("Cannot create task for context -> {}", ctx);
+            return OutgoingMessage.send(chatId, "Упс, не получилось создать задание(");
+        } catch (Exception e) {
+            LOGGER.warn("Received text `{}` cannot be parsed as time", text, e);
+            return OutgoingMessage.send(chatId,"Вы ввели не правильный формат времени, прошу введи время в формате HH:mm");
+        }
     }
 
 }
