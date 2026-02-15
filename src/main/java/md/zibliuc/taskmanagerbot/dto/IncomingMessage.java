@@ -4,6 +4,7 @@ public record IncomingMessage (
     Long chatId,
     Integer messageId,
     String text,
+    CallbackData callbackData,
     TelegramUserData userData
 )
 { }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class CallbackDataParser {
     private static final Logger LOGGER = LogManager.getLogger(CallbackDataParser.class);
 
-    public CallbackData parse(String callback) throws IllegalStateException, NumberFormatException {
+    public CallbackData parse(String callback) throws IllegalStateException {
         LOGGER.info("Get string for parsing -> {}", callback);
         String[] splitCallback = callback.split(":");
         if (splitCallback.length != 2) {

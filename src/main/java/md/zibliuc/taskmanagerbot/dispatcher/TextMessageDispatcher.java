@@ -30,6 +30,7 @@ public class TextMessageDispatcher {
                 message.chat().id(),
                 message.messageId(),
                 message.text(),
+                null,
                 userData
         );
 

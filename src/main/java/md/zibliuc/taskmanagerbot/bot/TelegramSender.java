@@ -17,6 +17,11 @@ public class TelegramSender {
     private final TelegramBot telegramBot;
 
     public void send(OutgoingMessage message) {
+        if (message == null) {
+            LOGGER.warn("Cannot send null message");
+            return;
+        }
+
         switch (message.getAction()) {
             case SEND -> sendMessage(message);
             case EDIT -> editMessage(message);
