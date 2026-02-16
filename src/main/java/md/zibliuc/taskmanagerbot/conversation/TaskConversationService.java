@@ -72,13 +72,16 @@ public class TaskConversationService {
             if (createdTask != null) {
                 return OutgoingMessage.send(chatId, "Задание создано успешно!\n"
                         + "Задание: " + createdTask.getName() + "\n"
-                        + "Время: " + DateTimeUtil.parseToString(createdTask.getDeadline()));
+                        + "Время: " + DateTimeUtil.parseToString(createdTask.getDeadline()))
+                        .keyboard(keyboardService.menuKeyboard());
             }
             LOGGER.error("Cannot create task for context -> {}", ctx);
-            return OutgoingMessage.send(chatId, "Упс, не получилось создать задание(");
+            return OutgoingMessage.send(chatId, "Упс, не получилось создать задание(")
+                    .keyboard(keyboardService.menuKeyboard());
         } catch (Exception e) {
             LOGGER.warn("Received text `{}` cannot be parsed as time", text, e);
-            return OutgoingMessage.send(chatId,"Вы ввели не правильный формат времени, прошу введи время в формате HH:mm");
+            return OutgoingMessage.send(chatId,"Вы ввели не правильный формат времени.\n" +
+                    "Прошу введи время в формате HH:mm");
         }
     }
 

@@ -40,7 +40,7 @@ public class KeyboardService {
 
         kb.addRow(
                 new InlineKeyboardButton("Отмена")
-                        .callbackData("CANCEL")
+                        .callbackData("CANCEL:-1")
         );
 
         return kb;
