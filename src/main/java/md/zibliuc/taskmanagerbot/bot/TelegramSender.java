@@ -1,6 +1,7 @@
 package md.zibliuc.taskmanagerbot.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.*;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
@@ -66,6 +67,11 @@ public class TelegramSender {
                 msg.getMessageId(),
                 msg.getText()
         );
+
+        if (msg.getKeyboard() != null && msg.getKeyboard() instanceof InlineKeyboardMarkup) {
+            LOGGER.info("Adding keyboard to edited message message `{}`", msg.getText());
+            sendMessage.replyMarkup((InlineKeyboardMarkup) msg.getKeyboard());
+        }
         telegramBot.execute(sendMessage);
     }
 

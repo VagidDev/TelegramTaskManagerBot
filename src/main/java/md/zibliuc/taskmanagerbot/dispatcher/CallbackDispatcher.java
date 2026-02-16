@@ -1,15 +1,16 @@
 package md.zibliuc.taskmanagerbot.dispatcher;
 
 import com.pengrad.telegrambot.model.CallbackQuery;
-import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.bot.CallbackDataParser;
 import md.zibliuc.taskmanagerbot.bot.TelegramSender;
-import md.zibliuc.taskmanagerbot.callback.TaskCallbackHandler;
+import md.zibliuc.taskmanagerbot.callback.TaskCallbackDateHandler;
+import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.CallbackData;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
+import md.zibliuc.taskmanagerbot.service.TaskService;
 import md.zibliuc.taskmanagerbot.service.UserConversationStateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,9 +23,10 @@ public class CallbackDispatcher {
 
     private final TelegramSender telegramSender;
     private final CallbackDataParser callbackDataParser;
-    private final TaskCallbackHandler taskCallbackHandler;
+    private final TaskCallbackDateHandler taskCallbackDateHandler;
     private final UserConversationStateService userConversationStateService;
     private final KeyboardService keyboardService;
+    private final TaskService taskService;
 
     public void dispatch(CallbackQuery callbackQuery) {
         CallbackData callbackData = callbackDataParser.parse(callbackQuery.data());
@@ -38,8 +40,15 @@ public class CallbackDispatcher {
         );
 
         OutgoingMessage message = switch (callbackData.type()) {
-            case DATE -> taskCallbackHandler.handle(incomingMessage);
-            case ACTION, TASK -> {
+            case DATE -> taskCallbackDateHandler.handle(incomingMessage);
+            case TASK -> {
+                //TODO: move it to special handler
+                //TODO:also implement for other actions (cases)
+                Task task = taskService.get(callbackData.asLong());
+                yield OutgoingMessage
+                    .edit(incomingMessage.chatId(), incomingMessage.messageId(), "Задание: ");
+            }
+            case ACTION -> {
                 LOGGER.warn("Not implemented yet! Incoming message received -> {}", incomingMessage);
                 yield null;
             }
