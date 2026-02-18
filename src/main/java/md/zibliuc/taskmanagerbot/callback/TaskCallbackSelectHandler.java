@@ -1,11 +1,11 @@
 package md.zibliuc.taskmanagerbot.callback;
 
 import lombok.RequiredArgsConstructor;
-import md.zibliuc.taskmanagerbot.TaskManagerApplication;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.service.TaskService;
+import md.zibliuc.taskmanagerbot.util.DateTimeUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -17,8 +17,27 @@ public class TaskCallbackSelectHandler {
     private final TaskService taskService;
 
     public OutgoingMessage handle(IncomingMessage message) {
-        Task task = taskService.get(message.callbackData().asLong());
-        return OutgoingMessage
-                .edit(message.chatId(), message.messageId(), "Задание: ");
+        try {
+            Long callbackId = message.callbackData().asLong();
+            Task task = taskService.get(callbackId);
+            if (task != null) {
+                return OutgoingMessage
+                        .edit(message.chatId(), message.messageId(),
+                                "Задание: " + task.getName() + "\n" +
+                                        "Выполнить до: " + DateTimeUtil.parseToString(task.getDeadline())
+                        );
+
+            }
+            LOGGER.warn("Cannot find task for taskId {}. Callback received {}", callbackId, message.callbackData());
+            return OutgoingMessage
+                    .send(message.chatId(), "Упс, я не смог найти ваше здание((((");
+        } catch (NumberFormatException e) {
+            LOGGER.error(
+                    "Error while getting callback data from callback {}. Error -> {}",
+                    message.callbackData(),
+                    e.getLocalizedMessage()
+            );
+            return OutgoingMessage.send(message.chatId(), "Вы точно туда нажали?????");
+        }
     }
 }

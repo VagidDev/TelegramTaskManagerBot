@@ -4,7 +4,9 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.bot.CallbackDataParser;
 import md.zibliuc.taskmanagerbot.bot.TelegramSender;
+import md.zibliuc.taskmanagerbot.callback.TaskCallbackCancelHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackDateHandler;
+import md.zibliuc.taskmanagerbot.callback.TaskCallbackSelectHandler;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.CallbackData;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
@@ -24,8 +26,8 @@ public class CallbackDispatcher {
     private final TelegramSender telegramSender;
     private final CallbackDataParser callbackDataParser;
     private final TaskCallbackDateHandler taskCallbackDateHandler;
-    private final UserConversationStateService userConversationStateService;
-    private final KeyboardService keyboardService;
+    private final TaskCallbackSelectHandler taskCallbackSelectHandler;
+    private final TaskCallbackCancelHandler taskCallbackCancelHandler;
     private final TaskService taskService;
 
     public void dispatch(CallbackQuery callbackQuery) {
@@ -41,25 +43,12 @@ public class CallbackDispatcher {
 
         OutgoingMessage message = switch (callbackData.type()) {
             case DATE -> taskCallbackDateHandler.handle(incomingMessage);
-            case TASK -> {
-                //TODO: move it to special handler
-                //TODO:also implement for other actions (cases)
-                Task task = taskService.get(callbackData.asLong());
-                yield OutgoingMessage
-                    .edit(incomingMessage.chatId(), incomingMessage.messageId(), "Задание: ");
-            }
+            case TASK -> taskCallbackSelectHandler.handle(incomingMessage);
             case ACTION -> {
                 LOGGER.warn("Not implemented yet! Incoming message received -> {}", incomingMessage);
                 yield null;
             }
-            case CANCEL -> {
-                userConversationStateService.reset(incomingMessage.chatId());
-                // Deleting message
-                telegramSender.send(OutgoingMessage.delete(incomingMessage.chatId(), incomingMessage.messageId()));
-                yield OutgoingMessage
-                        .send(incomingMessage.chatId(), "Галя отмена...")
-                        .keyboard(keyboardService.menuKeyboard());
-            }
+            case CANCEL -> taskCallbackCancelHandler.handle(incomingMessage);
             case UNDEFINED -> {
                 LOGGER.warn("Undefined callback! Incoming message with callback received -> {}", incomingMessage);
                 yield OutgoingMessage.send(incomingMessage.chatId(), "Вот это поворот, что-то новенькое....");
