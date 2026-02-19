@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.bot.CallbackDataParser;
 import md.zibliuc.taskmanagerbot.bot.TelegramSender;
+import md.zibliuc.taskmanagerbot.callback.TaskCallbackActionHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackCancelHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackDateHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackSelectHandler;
@@ -27,6 +28,7 @@ public class CallbackDispatcher {
     private final CallbackDataParser callbackDataParser;
     private final TaskCallbackDateHandler taskCallbackDateHandler;
     private final TaskCallbackSelectHandler taskCallbackSelectHandler;
+    private final TaskCallbackActionHandler taskCallbackActionHandler;
     private final TaskCallbackCancelHandler taskCallbackCancelHandler;
     private final TaskService taskService;
 
@@ -44,11 +46,20 @@ public class CallbackDispatcher {
         OutgoingMessage message = switch (callbackData.type()) {
             case DATE -> taskCallbackDateHandler.handle(incomingMessage);
             case TASK -> taskCallbackSelectHandler.handle(incomingMessage);
-            case ACTION -> {
+            //TODO: implement logic
+            case COMPLETE, POSTPONE, DELETE -> {
+                //TODO: maybe change to edit, need to think more about this
+                telegramSender.send(OutgoingMessage.delete(incomingMessage.chatId(), incomingMessage.messageId()));
+                yield taskCallbackActionHandler.handle(incomingMessage);
+            }
+            case EDIT -> {
                 LOGGER.warn("Not implemented yet! Incoming message received -> {}", incomingMessage);
                 yield null;
             }
-            case CANCEL -> taskCallbackCancelHandler.handle(incomingMessage);
+            case CANCEL -> {
+                telegramSender.send(OutgoingMessage.delete(incomingMessage.chatId(), incomingMessage.messageId()));
+                yield taskCallbackCancelHandler.handle(incomingMessage);
+            }
             case UNDEFINED -> {
                 LOGGER.warn("Undefined callback! Incoming message with callback received -> {}", incomingMessage);
                 yield OutgoingMessage.send(incomingMessage.chatId(), "Вот это поворот, что-то новенькое....");

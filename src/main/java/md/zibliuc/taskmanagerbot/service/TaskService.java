@@ -90,13 +90,15 @@ public class TaskService {
     }
 
     @Transactional
-    public void completeTask(Long id) {
+    public Task completeTask(Long id) {
         Task task = get(id);
         if (task != null) {
             task.setCompleted(true);
-        } else {
-            LOGGER.warn("No task to complete with ID `{}`", id);
+            return task;
         }
+        LOGGER.warn("No task to complete with ID `{}`", id);
+        return null;
+
     }
 
     @Transactional
@@ -141,13 +143,17 @@ public class TaskService {
         Task updatedTask = repository.save(task);
         return updatedTask.getId() != null;
     }
-
+    //TODO: change logic of deleting
     @Transactional
-    public void delete(Long id) {
+    public Task delete(Long id) {
         Task task = get(id);
-        if (task != null)
+        if (task != null) {
             task.getBotUser()
                     .getTasks()
                     .removeIf(t -> Objects.equals(t.getId(), id));
+            return task;
+        }
+        LOGGER.error("Cannot find task for deleting with id `{}`", id);
+        return null;
     }
 }
