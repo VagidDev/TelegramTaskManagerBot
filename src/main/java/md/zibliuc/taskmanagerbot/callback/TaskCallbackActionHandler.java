@@ -6,6 +6,7 @@ import md.zibliuc.taskmanagerbot.dto.CallbackData;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.service.TaskService;
+import md.zibliuc.taskmanagerbot.util.DateTimeUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class TaskCallbackActionHandler {
             String response = switch (callbackData.type()) {
                 case COMPLETE -> onComplete(taskId);
                 case DELETE -> onDelete(taskId);
+                case POSTPONE -> onPostpone(taskId);
                 default -> {
                     //by logic, it should not be used in any conditions due to switch-case in CallbackDispatcher
                     LOGGER.warn("Undefined callback type for task action. Callback received -> {}", callbackData);
@@ -55,7 +57,16 @@ public class TaskCallbackActionHandler {
     }
 
     private String onPostpone(Long taskId) {
-        return null;
+        // By default, it will postpone on 15 minutes
+        Long postponeMinutes = 15L;
+        Task postponedTask = taskService.postponeTask(taskId, postponeMinutes);
+        if (postponedTask != null) {
+            return "Вы перенесли задачу `%s` на %s"
+                    .formatted(postponedTask.getName(),
+                            DateTimeUtil.parseDateTimeToString(postponedTask.getDeadline()));
+        }
+        LOGGER.error("Cannot postpone task with id {}", taskId);
+        return "Не получилось перенести задачу((\nДелай сейчас)";
     }
 
     private String onDelete(Long taskId) {

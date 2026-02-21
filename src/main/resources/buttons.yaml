@@ -6,7 +6,7 @@ ui:
       delete: Удалить
       edit: Изменить
       cancel: Отмена
-      postpone: Напомнить через 5 мин
+      postpone: Перенести на 15 мин
     main:
       create-command: Создать задачу
       all-command: Мои задачи

@@ -57,6 +57,8 @@ public class KeyboardService {
         );
         kb.addRow(new InlineKeyboardButton(crudMenuConfig.getComplete())
                 .callbackData("COMPLETE:" + taskId));
+        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getPostpone())
+                .callbackData("POSTPONE:" + taskId));
         kb.addRow(new InlineKeyboardButton(crudMenuConfig.getDelete())
                 .callbackData("DELETE:" + taskId));
         kb.addRow(new InlineKeyboardButton(crudMenuConfig.getEdit())

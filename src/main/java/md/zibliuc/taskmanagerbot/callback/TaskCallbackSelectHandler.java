@@ -26,7 +26,7 @@ public class TaskCallbackSelectHandler {
                 return OutgoingMessage
                         .edit(message.chatId(), message.messageId(),
                                 "Задание: " + task.getName() + "\n" +
-                                        "Выполнить до: " + DateTimeUtil.parseToString(task.getDeadline())
+                                        "Выполнить до: " + DateTimeUtil.parseDateTimeToString(task.getDeadline())
                         ).keyboard(keyboardService.crudKeyboard(task.getId()));
 
             }

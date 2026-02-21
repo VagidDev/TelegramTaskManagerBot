@@ -107,25 +107,26 @@ public class TaskService {
     }
 
     @Transactional
-    public void postponeTask(Long id, Long postponeOnMinutes) {
+    public Task postponeTask(Long id, Long postponeOnMinutes) {
         if (id == null || postponeOnMinutes == null) {
             LOGGER.error(
                     "Cannot postpone task because of null argument. Task id -> {}, minutes for postponing -> {}",
                             id,
                             postponeOnMinutes
                     );
-            return;
+            return null;
         }
 
         Task task = get(id);
         if (task == null) {
             LOGGER.error("Cannot find task with id {}", id);
-            return;
+            return null;
         }
 
-        LocalDateTime deadline = LocalDateTime.now().plusMinutes(postponeOnMinutes);
+        LocalDateTime deadline = task.getDeadline().plusMinutes(postponeOnMinutes);
         task.setDeadline(deadline);
         task.setSendNotification(true);
+        return task;
     }
 
     @Deprecated
