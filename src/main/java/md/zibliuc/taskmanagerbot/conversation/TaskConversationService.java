@@ -48,7 +48,7 @@ public class TaskConversationService {
         ctx.setState(ConversationState.WAITING_DATE);
         return OutgoingMessage
                 .send(chatId, "Выберите дату")
-                .keyboard(keyboardService.dateKeyboard());
+                .keyboard(keyboardService.dateKeyboard(3));
     }
     // Will be at callback processor
     // public void onDate(Long chatId, LocalDate date) {}

@@ -138,7 +138,7 @@ public class MessageService {
 
                 telegramBot.execute(new SendMessage(chatId.longValue(),
                           "Выберите дату")
-                        .replyMarkup(keyboardService.dateKeyboard())
+                        .replyMarkup(keyboardService.dateKeyboard(3))
                 );
             }
             case WAITING_DATE -> {

@@ -8,13 +8,10 @@ import md.zibliuc.taskmanagerbot.callback.TaskCallbackActionHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackCancelHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackDateHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackSelectHandler;
-import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.CallbackData;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
-import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.TaskService;
-import md.zibliuc.taskmanagerbot.service.UserConversationStateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -44,7 +41,7 @@ public class CallbackDispatcher {
         );
 
         OutgoingMessage message = switch (callbackData.type()) {
-            case DATE -> taskCallbackDateHandler.handle(incomingMessage);
+            case DATE, DATE_FORWARD, DATE_BACKWARD -> taskCallbackDateHandler.handle(incomingMessage);
             case TASK -> taskCallbackSelectHandler.handle(incomingMessage);
             //TODO: implement logic
             case COMPLETE, POSTPONE, DELETE -> {
@@ -63,6 +60,10 @@ public class CallbackDispatcher {
             case UNDEFINED -> {
                 LOGGER.warn("Undefined callback! Incoming message with callback received -> {}", incomingMessage);
                 yield OutgoingMessage.send(incomingMessage.chatId(), "Вот это поворот, что-то новенькое....");
+            }
+            default -> {
+                LOGGER.warn("Not implemented callback. Incoming message -> {}", incomingMessage);
+                yield OutgoingMessage.send(incomingMessage.chatId(), "Та погодите, еще не реализовал(");
             }
         };
 

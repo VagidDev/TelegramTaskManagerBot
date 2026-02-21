@@ -14,8 +14,6 @@ public record CallbackData(
     }
 
     public LocalDate asDate() throws DateTimeParseException {
-        return "TODAY".equals(payload) ?
-                LocalDate.now() :
-                LocalDate.parse(payload);
+        return LocalDate.parse(payload);
     }
 }

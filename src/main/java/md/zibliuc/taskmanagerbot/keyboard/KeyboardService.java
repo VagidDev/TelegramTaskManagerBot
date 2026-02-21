@@ -2,6 +2,7 @@ package md.zibliuc.taskmanagerbot.keyboard;
 
 import com.pengrad.telegrambot.model.request.*;
 import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.callback.CallbackType;
 import md.zibliuc.taskmanagerbot.config.CrudMenuConfig;
 import md.zibliuc.taskmanagerbot.config.MainMenuConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
@@ -21,26 +22,52 @@ public class KeyboardService {
     private final MainMenuConfig mainMenuConfig;
     private final CrudMenuConfig crudMenuConfig;
 
-    public InlineKeyboardMarkup dateKeyboard() {
+    public InlineKeyboardMarkup dateKeyboard(int dateCount) {
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
+        LocalDate today = LocalDate.now();
+
+        return createDateRangeKeyboard(kb, today, today.plusDays(dateCount));
+    }
+
+    public InlineKeyboardMarkup dateRangeKeyboard(LocalDate date, int countOfDays) {
+        if (countOfDays > 0) {
+            return createDateRangeKeyboard(new InlineKeyboardMarkup(), date, date.plusDays(countOfDays));
+        } else {
+            return createDateRangeKeyboard(new InlineKeyboardMarkup(), date.minusDays(countOfDays * -1), date);
+        }
+    }
+
+    private InlineKeyboardMarkup createDateRangeKeyboard(InlineKeyboardMarkup kb, LocalDate dateFrom, LocalDate dateTill) {
+        LocalDate today = LocalDate.now();
+        LocalDate d = dateFrom;
+        int i = 1;
+
+        while (!dateTill.equals(d)){
+            InlineKeyboardButton button = d.equals(today)
+                    ? new InlineKeyboardButton("Сегодня").callbackData(CallbackType.DATE + ":" + today)
+                    : new InlineKeyboardButton(d.format(DateTimeFormatter.ofPattern("dd MMM"))).callbackData(CallbackType.DATE + ":" + d);
+
+            kb.addRow(button);
+            d = dateFrom.plusDays(i);
+            i++;
+        }
 
         kb.addRow(
-                new InlineKeyboardButton("Сегодня")
-                        .callbackData("DATE:TODAY")
+                new InlineKeyboardButton("Вперед")
+                        .callbackData(CallbackType.DATE_FORWARD + ":" + dateTill)
         );
 
-        LocalDate today = LocalDate.now();
-        for (int i = 1; i <= 5; i++) {
-            LocalDate d = today.plusDays(i);
+        if (dateFrom.isAfter(today) || !dateFrom.equals(today)) {
             kb.addRow(
-                    new InlineKeyboardButton(d.format(DateTimeFormatter.ofPattern("dd MMM")))
-                            .callbackData("DATE:" + d)
+                    new InlineKeyboardButton("Назад")
+                            .callbackData(CallbackType.DATE_BACKWARD + ":" + dateFrom)
             );
+
         }
 
         kb.addRow(
                 new InlineKeyboardButton("Отмена")
-                        .callbackData("CANCEL:-1")
+                        .callbackData(CallbackType.CANCEL + ":-1")
         );
 
         return kb;
