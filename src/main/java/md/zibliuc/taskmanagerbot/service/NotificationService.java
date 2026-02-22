@@ -3,7 +3,6 @@ package md.zibliuc.taskmanagerbot.service;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
-import md.zibliuc.taskmanagerbot.conversation.ConversationState;
 import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.database.entity.BotUser;
@@ -25,7 +24,6 @@ public class NotificationService {
     private final TelegramBot telegramBot;
     private final TaskService taskService;
     private final KeyboardService keyboardService;
-    private final UserConversationStateService userConversationStateService;
 
     //@Scheduled(fixedRate = 60_000)
     public void sendNotifications() {
@@ -54,7 +52,6 @@ public class NotificationService {
                                                 .replyMarkup(keyboardService.replyForNotificationKeyboard(task.getId()))
                                 );
 
-                                userConversationStateService.get(botUser.getChatId()).setState(ConversationState.WAITING_TASK_ACTION);
                                 taskService.turnOffNotification(task);
                             } catch (Exception e) {
                                 LOGGER.error(
