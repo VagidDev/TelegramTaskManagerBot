@@ -3,7 +3,7 @@ package md.zibliuc.taskmanagerbot.callback;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
-import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
+import md.zibliuc.taskmanagerbot.service.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.UserConversationStateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

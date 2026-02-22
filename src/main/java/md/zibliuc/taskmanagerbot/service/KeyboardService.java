@@ -1,4 +1,4 @@
-package md.zibliuc.taskmanagerbot.keyboard;
+package md.zibliuc.taskmanagerbot.service;
 
 import com.pengrad.telegrambot.model.request.*;
 import lombok.RequiredArgsConstructor;

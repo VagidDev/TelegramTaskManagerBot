@@ -5,8 +5,9 @@ import md.zibliuc.taskmanagerbot.bot.TelegramSender;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
-import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
+import md.zibliuc.taskmanagerbot.service.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.TaskService;
+import md.zibliuc.taskmanagerbot.service.TimeValidationService;
 import md.zibliuc.taskmanagerbot.service.UserConversationStateService;
 import md.zibliuc.taskmanagerbot.util.DateTimeUtil;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +22,7 @@ public class TaskConversationService {
     private static final Logger LOGGER = LogManager.getLogger(TaskConversationService.class);
 
     private final UserConversationStateService conversationStateService;
+    private final TimeValidationService timeValidationService;
     private final TelegramSender telegramSender;
     private final KeyboardService keyboardService;
     private final TaskService taskService;
@@ -55,10 +57,13 @@ public class TaskConversationService {
 
     public OutgoingMessage onTime(Long chatId, String text, ConversationContext ctx) {
         try {
-            //TODO: create check regex because Exception take a lot of resources
+            if (!timeValidationService.validate(text)) {
+                return OutgoingMessage.send(chatId,"Вы ввели не правильный формат времени.\n" +
+                        "Прошу введи время в формате HH:mm");
+            }
+
             LocalTime time = LocalTime.parse(text);
             ctx.setTime(time);
-
             Task createdTask = taskService.createTask(
                     ctx.getChatId(),
                     ctx.getTitle(),
@@ -78,9 +83,9 @@ public class TaskConversationService {
             return OutgoingMessage.send(chatId, "Упс, не получилось создать задание(")
                     .keyboard(keyboardService.menuKeyboard());
         } catch (Exception e) {
-            LOGGER.warn("Received text `{}` cannot be parsed as time", text, e);
-            return OutgoingMessage.send(chatId,"Вы ввели не правильный формат времени.\n" +
-                    "Прошу введи время в формате HH:mm");
+            LOGGER.error("Error while processing text `{}` in onTime method", text, e);
+            conversationStateService.reset(chatId);
+            return OutgoingMessage.send(chatId,"Возникла ошибка во время создания таска(");
         }
     }
 

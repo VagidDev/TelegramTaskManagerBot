@@ -3,7 +3,6 @@ package md.zibliuc.taskmanagerbot.service;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import lombok.RequiredArgsConstructor;
-import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import org.apache.logging.log4j.LogManager;

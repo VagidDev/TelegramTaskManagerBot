@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
-import md.zibliuc.taskmanagerbot.keyboard.KeyboardService;
+import md.zibliuc.taskmanagerbot.service.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
