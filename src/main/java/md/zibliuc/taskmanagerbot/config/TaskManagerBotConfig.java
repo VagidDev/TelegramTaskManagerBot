@@ -12,7 +12,6 @@ public class TaskManagerBotConfig {
 
     @Bean
     public TelegramBot telegramBot() {
-        System.out.print(botToken);
         return new TelegramBot(botToken);
     }
 }

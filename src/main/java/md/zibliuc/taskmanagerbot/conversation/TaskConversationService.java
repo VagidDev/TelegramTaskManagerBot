@@ -2,6 +2,7 @@ package md.zibliuc.taskmanagerbot.conversation;
 
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.bot.TelegramSender;
+import md.zibliuc.taskmanagerbot.config.ConversationResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
@@ -21,6 +22,7 @@ import java.time.LocalTime;
 public class TaskConversationService {
     private static final Logger LOGGER = LogManager.getLogger(TaskConversationService.class);
 
+    private final ConversationResponseConfig conversationResponseConfig;
     private final UserConversationStateService conversationStateService;
     private final TimeValidationService timeValidationService;
     private final TelegramSender telegramSender;
@@ -49,7 +51,7 @@ public class TaskConversationService {
         ctx.setTitle(text);
         ctx.setState(ConversationState.WAITING_DATE);
         return OutgoingMessage
-                .send(chatId, "Выберите дату")
+                .send(chatId, conversationResponseConfig.getOnTitleCorrect())
                 .keyboard(keyboardService.dateKeyboard(3));
     }
     // Will be at callback processor
@@ -58,8 +60,7 @@ public class TaskConversationService {
     public OutgoingMessage onTime(Long chatId, String text, ConversationContext ctx) {
         try {
             if (!timeValidationService.validate(text)) {
-                return OutgoingMessage.send(chatId,"Вы ввели не правильный формат времени.\n" +
-                        "Прошу введи время в формате HH:mm");
+                return OutgoingMessage.send(chatId, conversationResponseConfig.getOnTimeIncorrectFormat());
             }
 
             LocalTime time = LocalTime.parse(text);
@@ -74,18 +75,19 @@ public class TaskConversationService {
             conversationStateService.reset(chatId);
 
             if (createdTask != null) {
-                return OutgoingMessage.send(chatId, "Задание создано успешно!\n"
-                        + "Задание: " + createdTask.getName() + "\n"
-                        + "Время: " + DateTimeUtil.parseDateTimeToString(createdTask.getDeadline()))
+                String response = conversationResponseConfig
+                        .getOnTimeCorrect()
+                        .formatted(createdTask.getName(), DateTimeUtil.parseDateTimeToString(createdTask.getDeadline()));
+                return OutgoingMessage.send(chatId, response)
                         .keyboard(keyboardService.menuKeyboard());
             }
             LOGGER.error("Cannot create task for context -> {}", ctx);
-            return OutgoingMessage.send(chatId, "Упс, не получилось создать задание(")
+            return OutgoingMessage.send(chatId, conversationResponseConfig.getOnTimeError())
                     .keyboard(keyboardService.menuKeyboard());
         } catch (Exception e) {
             LOGGER.error("Error while processing text `{}` in onTime method", text, e);
             conversationStateService.reset(chatId);
-            return OutgoingMessage.send(chatId,"Возникла ошибка во время создания таска(");
+            return OutgoingMessage.send(chatId, conversationResponseConfig.getOnTimeError());
         }
     }
 

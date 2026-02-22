@@ -1,0 +1,37 @@
+ui:
+  # Keyboard configuration
+  menu:
+    crud:
+      complete: Выполнить
+      delete: Удалить
+      edit: Изменить
+      cancel: Отмена
+      postpone: Перенести на 15 мин
+    main:
+      create-command: Создать задачу
+      all-command: Мои задачи
+      uncompleted-command: Невыполненные задачи
+      help-command: Помощь
+  # Text for responses
+  responses:
+    conversation:
+      on-title-correct: Выберите дату
+      on-time-correct: |
+        Задание создано успешно!
+        Задание: %s
+        Время: %s
+      on-time-incorrect-format: | 
+        Вы ввели не правильный формат времени.
+        Прошу введи время в формате HH:mm
+      on-time-error: Упс, не получилось создать задание(
+    command:
+      start: Привет! Я Task Manager бот, чем могу быть полезен?
+      create: Введите название задачи
+      help: "Доступные команды: /start, /help"
+      show-tasks: Список задач
+      show-tasks-empty: У вас нету задач, отдыхайте!
+      show-tasks-error: Мы не смогли найти для вас задачи(
+      show-uncompleted-tasks: Что будем делать?
+      show-uncompleted-tasks-empty: У вас нету не выполненных заданий!
+      show-uncompleted-tasks-error: Мы не смогли найти для вас задачи(
+

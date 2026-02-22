@@ -1,6 +1,7 @@
 package md.zibliuc.taskmanagerbot.command;
 
 import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.config.CommandResponseConfig;
 import md.zibliuc.taskmanagerbot.conversation.ConversationState;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
@@ -16,6 +17,7 @@ public class CreateCommand implements ProceedCommand {
     private static final Logger LOGGER = LogManager.getLogger(CreateCommand.class);
 
     private final UserConversationStateService conversationStateService;
+    private final CommandResponseConfig commandResponseConfig;
     private final KeyboardService keyboardService;
 
     @Override
@@ -25,7 +27,7 @@ public class CreateCommand implements ProceedCommand {
                 message.chatId(),
                 conversationStateService.get(message.chatId()));
         return OutgoingMessage
-                .send(message.chatId(), "Введите название задачи:")
+                .send(message.chatId(), commandResponseConfig.getCreate())
                 .keyboard(keyboardService.removeKeyboard());
     }
 }

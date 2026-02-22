@@ -1,6 +1,7 @@
 package md.zibliuc.taskmanagerbot.command;
 
 import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.config.CommandResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
@@ -20,24 +21,24 @@ public class ShowUncompletedTasksCommand implements ProceedCommand {
 
     private final UserService userService;
     private final KeyboardService keyboardService;
-    //TODO: need to be tested - no tasks while it was wrote
+    private final CommandResponseConfig commandResponseConfig;
     //TODO: extract similar logic with ShowTasksCommand
     @Override
     public OutgoingMessage proceed(IncomingMessage message) {
         BotUser botUser = userService.getByChatId(message.chatId());
         if (botUser == null) {
             LOGGER.error("Cannot find user for chat id {}", message.chatId());
-            return OutgoingMessage.send(message.chatId(), "У вас нет тасков");
+            return OutgoingMessage.send(message.chatId(), commandResponseConfig.getShowUncompletedTasksError());
         }
 
         List<Task> taskList = botUser.getUncompletedTask();
         if (taskList.isEmpty()) {
             return OutgoingMessage
-                    .send(message.chatId(), "У вас нету не выполненных заданий!");
+                    .send(message.chatId(), commandResponseConfig.getShowUncompletedTasksEmpty());
         }
 
         return OutgoingMessage
-                .send(message.chatId(), "Что будем делать?")
+                .send(message.chatId(), commandResponseConfig.getShowUncompletedTasks())
                 .keyboard(keyboardService.taskKeyboard(taskList));
     }
 }
