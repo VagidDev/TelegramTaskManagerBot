@@ -8,6 +8,7 @@ import md.zibliuc.taskmanagerbot.callback.TaskCallbackActionHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackCancelHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackDateHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackSelectHandler;
+import md.zibliuc.taskmanagerbot.config.CallbackResponseConfig;
 import md.zibliuc.taskmanagerbot.dto.CallbackData;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
@@ -27,7 +28,7 @@ public class CallbackDispatcher {
     private final TaskCallbackSelectHandler taskCallbackSelectHandler;
     private final TaskCallbackActionHandler taskCallbackActionHandler;
     private final TaskCallbackCancelHandler taskCallbackCancelHandler;
-    private final TaskService taskService;
+    private final CallbackResponseConfig callbackResponseConfig;
 
     public void dispatch(CallbackQuery callbackQuery) {
         CallbackData callbackData = callbackDataParser.parse(callbackQuery.data());
@@ -59,11 +60,11 @@ public class CallbackDispatcher {
             }
             case UNDEFINED -> {
                 LOGGER.warn("Undefined callback! Incoming message with callback received -> {}", incomingMessage);
-                yield OutgoingMessage.send(incomingMessage.chatId(), "Вот это поворот, что-то новенькое....");
+                yield OutgoingMessage.send(incomingMessage.chatId(), callbackResponseConfig.getUndefined());
             }
             default -> {
                 LOGGER.warn("Not implemented callback. Incoming message -> {}", incomingMessage);
-                yield OutgoingMessage.send(incomingMessage.chatId(), "Та погодите, еще не реализовал(");
+                yield OutgoingMessage.send(incomingMessage.chatId(), callbackResponseConfig.getUndefined());
             }
         };
 

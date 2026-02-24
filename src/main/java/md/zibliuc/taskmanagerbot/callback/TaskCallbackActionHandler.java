@@ -1,6 +1,7 @@
 package md.zibliuc.taskmanagerbot.callback;
 
 import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.config.CallbackResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.CallbackData;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class TaskCallbackActionHandler {
     private static final Logger LOGGER = LogManager.getLogger(TaskCallbackActionHandler.class);
 
+    private final CallbackResponseConfig callbackResponseConfig;
     private final TaskService taskService;
 //    private final
     //TODO COMPLETE / DELETE / POSTPONE / EDIT
@@ -31,7 +33,7 @@ public class TaskCallbackActionHandler {
                 default -> {
                     //by logic, it should not be used in any conditions due to switch-case in CallbackDispatcher
                     LOGGER.warn("Undefined callback type for task action. Callback received -> {}", callbackData);
-                    yield "Шо ты хочешь от этого таска?";
+                    yield callbackResponseConfig.getActionError();
                 }
             };
 
@@ -49,11 +51,13 @@ public class TaskCallbackActionHandler {
     private String onComplete(Long taskId) {
         LOGGER.info("Completing task with id {}", taskId);
         Task task = taskService.completeTask(taskId);
-        if (task != null)
-            return "Вы выполнили задачу -> " + task.getName();
-
+        if (task != null) {
+            return callbackResponseConfig
+                    .getComplete()
+                    .formatted(task.getName());
+        }
         LOGGER.error("Cannot complete task with id {}", taskId);
-        return "Вы не можете выполнить несуществующую задачу! ";
+        return callbackResponseConfig.getCompleteError();
     }
 
     private String onPostpone(Long taskId) {
@@ -61,22 +65,24 @@ public class TaskCallbackActionHandler {
         Long postponeMinutes = 15L;
         Task postponedTask = taskService.postponeTask(taskId, postponeMinutes);
         if (postponedTask != null) {
-            return "Вы перенесли задачу `%s` на %s"
+            return callbackResponseConfig.getPostpone()
                     .formatted(postponedTask.getName(),
                             DateTimeUtil.parseDateTimeToString(postponedTask.getDeadline()));
         }
         LOGGER.error("Cannot postpone task with id {}", taskId);
-        return "Не получилось перенести задачу((\nДелай сейчас)";
+        return callbackResponseConfig.getPostponeError();
     }
 
     private String onDelete(Long taskId) {
         LOGGER.info("Trying to delete task with id {}", taskId);
         Task task = taskService.delete(taskId);
         if (task != null) {
-            return "Вы удалили задачу -> " + task.getName();
+            return callbackResponseConfig
+                    .getDelete()
+                    .formatted(task.getName());
         }
         LOGGER.error("Cannot delete task with id {}", taskId);
-        return "Вы не можее уддалить несуществующую задачу!";
+        return callbackResponseConfig.getDeleteError();
     }
 
     private String onEdit(Long id) {

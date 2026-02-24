@@ -34,4 +34,26 @@ ui:
       show-uncompleted-tasks: Что будем делать?
       show-uncompleted-tasks-empty: У вас нету не выполненных заданий!
       show-uncompleted-tasks-error: Мы не смогли найти для вас задачи(
-
+    callback:
+      # Date handler
+      date-picking: Выберите дату
+      date-picking-error: Я вообще этот запрос обрабатывать не буду
+      # Select handler
+      select-task: |
+        Задание: %s
+        Выполнить до: %s
+      select-task-not-found: Упс, я не смог найти ваше здание((((
+      select-task-error: Вы точно туда нажали?????
+      # Action handler
+      complete: Вы выполнили задачу -> %s
+      complete-error: Вы не можете выполнить несуществующую задачу!
+      postpone: Вы перенесли задачу `%s` на %s
+      postpone-error: |
+        Не получилось перенести задачу((
+        Делай сейчас)
+      delete: Вы удалили задачу -> %s
+      delete-error: Вы не можете уддалить несуществующую задачу!
+      action-error: Шо ты хочешь от этого таска?
+      # Cancel handler
+      cancel: Галя отмена...
+      undefined: Вот это поворот, что-то новенькое....

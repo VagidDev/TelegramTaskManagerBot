@@ -1,6 +1,7 @@
 package md.zibliuc.taskmanagerbot.callback;
 
 import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.config.CallbackResponseConfig;
 import md.zibliuc.taskmanagerbot.conversation.ConversationContext;
 import md.zibliuc.taskmanagerbot.conversation.ConversationState;
 import md.zibliuc.taskmanagerbot.dto.CallbackData;
@@ -21,6 +22,7 @@ public class TaskCallbackDateHandler {
     private static final int STEP_OF_DAYS = 3;
 
     private final UserConversationStateService conversationStateService;
+    private final CallbackResponseConfig callbackResponseConfig;
     private final KeyboardService keyboardService;
 
     public OutgoingMessage handle(IncomingMessage incomingMessage) {
@@ -36,7 +38,10 @@ public class TaskCallbackDateHandler {
                         callbackType,
                         incomingMessage.text()
                 );
-                yield OutgoingMessage.send(incomingMessage.chatId(), "Я вообще этот запрос обрабатывать не буду");
+                yield OutgoingMessage.send(
+                        incomingMessage.chatId(),
+                        callbackResponseConfig.getDatePickingError()
+                );
             }
         };
     }
@@ -63,7 +68,7 @@ public class TaskCallbackDateHandler {
         return OutgoingMessage.edit(
                 incomingMessage.chatId(),
                 incomingMessage.messageId(),
-                "Выберите дату"
+                callbackResponseConfig.getDatePicking()
         ).keyboard(keyboardService.dateRangeKeyboard(date, STEP_OF_DAYS));
     }
 
@@ -72,7 +77,7 @@ public class TaskCallbackDateHandler {
         return OutgoingMessage.edit(
                 incomingMessage.chatId(),
                 incomingMessage.messageId(),
-                "Выберите дату"
+                callbackResponseConfig.getDatePicking()
         ).keyboard(keyboardService.dateRangeKeyboard(date, STEP_OF_DAYS * -1));
     }
 }
