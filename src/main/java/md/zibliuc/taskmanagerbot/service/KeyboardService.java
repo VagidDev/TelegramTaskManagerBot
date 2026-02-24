@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.model.request.*;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.callback.CallbackType;
 import md.zibliuc.taskmanagerbot.config.CrudMenuConfig;
+import md.zibliuc.taskmanagerbot.config.DateMenuConfig;
 import md.zibliuc.taskmanagerbot.config.MainMenuConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +22,7 @@ public class KeyboardService {
 
     private final MainMenuConfig mainMenuConfig;
     private final CrudMenuConfig crudMenuConfig;
+    private final DateMenuConfig dateMenuConfig;
 
     public InlineKeyboardMarkup dateKeyboard(int dateCount) {
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
@@ -44,7 +46,7 @@ public class KeyboardService {
 
         while (!dateTill.equals(d)){
             InlineKeyboardButton button = d.equals(today)
-                    ? new InlineKeyboardButton("Сегодня").callbackData(CallbackType.DATE + ":" + today)
+                    ? new InlineKeyboardButton(dateMenuConfig.getToday()).callbackData(CallbackType.DATE + ":" + today)
                     : new InlineKeyboardButton(d.format(DateTimeFormatter.ofPattern("dd MMM"))).callbackData(CallbackType.DATE + ":" + d);
 
             kb.addRow(button);
@@ -53,20 +55,20 @@ public class KeyboardService {
         }
 
         kb.addRow(
-                new InlineKeyboardButton("Вперед")
+                new InlineKeyboardButton(dateMenuConfig.getForward())
                         .callbackData(CallbackType.DATE_FORWARD + ":" + dateTill)
         );
 
         if (dateFrom.isAfter(today) || !dateFrom.equals(today)) {
             kb.addRow(
-                    new InlineKeyboardButton("Назад")
+                    new InlineKeyboardButton(dateMenuConfig.getBackward())
                             .callbackData(CallbackType.DATE_BACKWARD + ":" + dateFrom)
             );
 
         }
 
         kb.addRow(
-                new InlineKeyboardButton("Отмена")
+                new InlineKeyboardButton(dateMenuConfig.getCancel())
                         .callbackData(CallbackType.CANCEL + ":-1")
         );
 

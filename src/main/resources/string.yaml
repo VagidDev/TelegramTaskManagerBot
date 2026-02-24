@@ -12,6 +12,11 @@ ui:
       all-command: Мои задачи
       uncompleted-command: Невыполненные задачи
       help-command: Помощь
+    date:
+      today: Сегодня
+      forward: Вперед
+      backward: Назад
+      cancel: Отмена
   # Text for responses
   responses:
     conversation:
