@@ -7,12 +7,12 @@ import md.zibliuc.taskmanagerbot.config.CrudMenuConfig;
 import md.zibliuc.taskmanagerbot.config.DateMenuConfig;
 import md.zibliuc.taskmanagerbot.config.MainMenuConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
+import md.zibliuc.taskmanagerbot.util.DateTimeUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -23,6 +23,7 @@ public class KeyboardService {
     private final MainMenuConfig mainMenuConfig;
     private final CrudMenuConfig crudMenuConfig;
     private final DateMenuConfig dateMenuConfig;
+    private final DateTimeUtil dateTimeUtil;
 
     public InlineKeyboardMarkup dateKeyboard(int dateCount) {
         InlineKeyboardMarkup kb = new InlineKeyboardMarkup();
@@ -47,7 +48,7 @@ public class KeyboardService {
         while (!dateTill.equals(d)){
             InlineKeyboardButton button = d.equals(today)
                     ? new InlineKeyboardButton(dateMenuConfig.getToday()).callbackData(CallbackType.DATE + ":" + today)
-                    : new InlineKeyboardButton(d.format(DateTimeFormatter.ofPattern("dd MMM"))).callbackData(CallbackType.DATE + ":" + d);
+                    : new InlineKeyboardButton(dateTimeUtil.parseDateToDayString(d)).callbackData(CallbackType.DATE + ":" + d);
 
             kb.addRow(button);
             d = dateFrom.plusDays(i);

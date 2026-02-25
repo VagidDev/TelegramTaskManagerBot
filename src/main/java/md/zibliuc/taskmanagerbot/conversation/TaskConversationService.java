@@ -27,6 +27,7 @@ public class TaskConversationService {
     private final TimeValidationService timeValidationService;
     private final TelegramSender telegramSender;
     private final KeyboardService keyboardService;
+    private final DateTimeUtil dateTimeUtil;
     private final TaskService taskService;
 
     public void handle(IncomingMessage message) {
@@ -77,7 +78,7 @@ public class TaskConversationService {
             if (createdTask != null) {
                 String response = conversationResponseConfig
                         .getOnTimeCorrect()
-                        .formatted(createdTask.getName(), DateTimeUtil.parseDateTimeToString(createdTask.getDeadline()));
+                        .formatted(createdTask.getName(), dateTimeUtil.parseDateTimeToDateTimeString(createdTask.getDeadline()));
                 return OutgoingMessage.send(chatId, response)
                         .keyboard(keyboardService.menuKeyboard());
             }

@@ -18,6 +18,7 @@ public class TaskCallbackActionHandler {
     private static final Logger LOGGER = LogManager.getLogger(TaskCallbackActionHandler.class);
 
     private final CallbackResponseConfig callbackResponseConfig;
+    private final DateTimeUtil dateTimeUtil;
     private final TaskService taskService;
 //    private final
     //TODO COMPLETE / DELETE / POSTPONE / EDIT
@@ -67,7 +68,7 @@ public class TaskCallbackActionHandler {
         if (postponedTask != null) {
             return callbackResponseConfig.getPostpone()
                     .formatted(postponedTask.getName(),
-                            DateTimeUtil.parseDateTimeToString(postponedTask.getDeadline()));
+                            dateTimeUtil.parseDateTimeToDateTimeString(postponedTask.getDeadline()));
         }
         LOGGER.error("Cannot postpone task with id {}", taskId);
         return callbackResponseConfig.getPostponeError();

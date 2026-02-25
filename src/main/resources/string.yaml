@@ -62,3 +62,9 @@ ui:
       # Cancel handler
       cancel: Галя отмена...
       undefined: Вот это поворот, что-то новенькое....
+  # Date format
+  util:
+    date:
+      date-time-format: E, dd MMM yyyy HH:mm
+      time-format: HH:mm
+      day-format: dd MMM

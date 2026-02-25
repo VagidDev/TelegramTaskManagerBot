@@ -1,17 +1,40 @@
 package md.zibliuc.taskmanagerbot.util;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.config.DateFormatConfig;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 
+@Component
+@RequiredArgsConstructor
 public class DateTimeUtil {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("E, dd MMM yyyy HH:mm");
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    private final DateFormatConfig dateFormatConfig;
 
-    public static String parseDateTimeToString(LocalDateTime localDateTime) {
-        return DATE_TIME_FORMATTER.format(localDateTime);
+    private DateTimeFormatter dateTimeFormatter;
+    private DateTimeFormatter dayFormatter;
+    private DateTimeFormatter timeFormatter;
+
+    @PostConstruct
+    void init() {
+        dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormatConfig.getDateTimeFormat());
+        dayFormatter = DateTimeFormatter.ofPattern(dateFormatConfig.getDayFormat());
+        timeFormatter =  DateTimeFormatter.ofPattern(dateFormatConfig.getTimeFormat());
     }
 
-    public static String parseTimeToString(LocalDateTime localDateTime) {
-        return TIME_FORMATTER.format(localDateTime);
+    public String parseDateTimeToDateTimeString(LocalDateTime localDateTime) {
+        return dateTimeFormatter.format(localDateTime);
+    }
+
+    public String parseDateToDayString(LocalDate localDate) {
+        return dayFormatter.format(localDate);
+    }
+
+    public String parseDateTimeToTimeString(LocalDateTime localDateTime) {
+        return timeFormatter.format(localDateTime);
     }
 }

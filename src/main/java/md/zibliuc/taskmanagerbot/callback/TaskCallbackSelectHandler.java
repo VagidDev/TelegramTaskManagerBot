@@ -18,6 +18,7 @@ public class TaskCallbackSelectHandler {
     private static final Logger LOGGER = LogManager.getLogger(TaskCallbackSelectHandler.class);
 
     private final CallbackResponseConfig callbackResponseConfig;
+    private final DateTimeUtil dateTimeUtil;
     private final KeyboardService keyboardService;
     private final TaskService taskService;
 
@@ -28,7 +29,7 @@ public class TaskCallbackSelectHandler {
             if (task != null) {
                 String response = callbackResponseConfig
                         .getSelectTask()
-                        .formatted(task.getName(), DateTimeUtil.parseDateTimeToString(task.getDeadline()));
+                        .formatted(task.getName(), dateTimeUtil.parseDateTimeToDateTimeString(task.getDeadline()));
                 return OutgoingMessage
                         .edit(message.chatId(), message.messageId(), response)
                         .keyboard(keyboardService.crudKeyboard(task.getId()));
