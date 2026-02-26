@@ -91,8 +91,9 @@ public class KeyboardService {
                 .callbackData("POSTPONE:" + taskId));
         kb.addRow(new InlineKeyboardButton(crudMenuConfig.getDelete())
                 .callbackData("DELETE:" + taskId));
-        kb.addRow(new InlineKeyboardButton(crudMenuConfig.getEdit())
-                .callbackData("EDIT:" + taskId));
+        //TODO: maybe, I will create logic for this, but not now
+        //kb.addRow(new InlineKeyboardButton(crudMenuConfig.getEdit())
+        //        .callbackData("EDIT:" + taskId));
         kb.addRow(new InlineKeyboardButton(crudMenuConfig.getCancel())
                 .callbackData("CANCEL:" + taskId));
 

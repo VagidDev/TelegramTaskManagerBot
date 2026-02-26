@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
+import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
 public class DateTimeUtil {
+    private static final Locale LOCALE = new Locale("RU");
     private final DateFormatConfig dateFormatConfig;
 
     private DateTimeFormatter dateTimeFormatter;
@@ -21,9 +22,9 @@ public class DateTimeUtil {
 
     @PostConstruct
     void init() {
-        dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormatConfig.getDateTimeFormat());
-        dayFormatter = DateTimeFormatter.ofPattern(dateFormatConfig.getDayFormat());
-        timeFormatter =  DateTimeFormatter.ofPattern(dateFormatConfig.getTimeFormat());
+        dateTimeFormatter = DateTimeFormatter.ofPattern(dateFormatConfig.getDateTimeFormat(), LOCALE);
+        dayFormatter = DateTimeFormatter.ofPattern(dateFormatConfig.getDayFormat(), LOCALE);
+        timeFormatter =  DateTimeFormatter.ofPattern(dateFormatConfig.getTimeFormat(), LOCALE);
     }
 
     public String parseDateTimeToDateTimeString(LocalDateTime localDateTime) {
