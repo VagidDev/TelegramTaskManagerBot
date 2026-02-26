@@ -3,6 +3,7 @@ package md.zibliuc.taskmanagerbot.conversation;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.bot.TelegramSender;
 import md.zibliuc.taskmanagerbot.config.ConversationResponseConfig;
+import md.zibliuc.taskmanagerbot.config.RandomFunnyResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
@@ -24,6 +25,7 @@ public class TaskConversationService {
 
     private final ConversationResponseConfig conversationResponseConfig;
     private final UserConversationStateService conversationStateService;
+    private final RandomFunnyResponseConfig randomFunnyResponseConfig;
     private final TimeValidationService timeValidationService;
     private final TelegramSender telegramSender;
     private final KeyboardService keyboardService;
@@ -38,9 +40,12 @@ public class TaskConversationService {
             case WAITING_TITLE -> onTitle(message.chatId(), message.text(), ctx);
             case WAITING_TIME -> onTime(message.chatId(), message.text(), ctx);
             default -> {
+                LOGGER.warn("Resetting context due to unexpected state -> {}", ctx.getState());
                 conversationStateService.reset(message.chatId());
+                String response = randomFunnyResponseConfig.getFunnyResponse();
+                LOGGER.info("Sending to user funny response -> {}", response);
                 yield OutgoingMessage
-                    .send(message.chatId(),"Unexpected value: " + ctx.getState())
+                    .send(message.chatId(),response)
                     .keyboard(keyboardService.menuKeyboard());
             }
         };
