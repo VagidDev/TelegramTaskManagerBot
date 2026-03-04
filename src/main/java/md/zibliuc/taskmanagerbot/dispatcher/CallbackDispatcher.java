@@ -3,7 +3,7 @@ package md.zibliuc.taskmanagerbot.dispatcher;
 import com.pengrad.telegrambot.model.CallbackQuery;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.bot.CallbackDataParser;
-import md.zibliuc.taskmanagerbot.bot.TelegramSender;
+import md.zibliuc.taskmanagerbot.bot.Sender;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackActionHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackCancelHandler;
 import md.zibliuc.taskmanagerbot.callback.TaskCallbackDateHandler;
@@ -12,7 +12,6 @@ import md.zibliuc.taskmanagerbot.config.CallbackResponseConfig;
 import md.zibliuc.taskmanagerbot.dto.CallbackData;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
-import md.zibliuc.taskmanagerbot.service.TaskService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -22,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class CallbackDispatcher {
     private static final Logger LOGGER = LogManager.getLogger(CallbackDispatcher.class);
 
-    private final TelegramSender telegramSender;
+    private final Sender sender;
     private final CallbackDataParser callbackDataParser;
     private final TaskCallbackDateHandler taskCallbackDateHandler;
     private final TaskCallbackSelectHandler taskCallbackSelectHandler;
@@ -47,7 +46,7 @@ public class CallbackDispatcher {
             //TODO: implement logic
             case COMPLETE, POSTPONE, DELETE -> {
                 //TODO: maybe change to edit, need to think more about this
-                telegramSender.send(OutgoingMessage.delete(incomingMessage.chatId(), incomingMessage.messageId()));
+                sender.send(OutgoingMessage.delete(incomingMessage.chatId(), incomingMessage.messageId()));
                 yield taskCallbackActionHandler.handle(incomingMessage);
             }
             case EDIT -> {
@@ -55,7 +54,7 @@ public class CallbackDispatcher {
                 yield null;
             }
             case CANCEL -> {
-                telegramSender.send(OutgoingMessage.delete(incomingMessage.chatId(), incomingMessage.messageId()));
+                sender.send(OutgoingMessage.delete(incomingMessage.chatId(), incomingMessage.messageId()));
                 yield taskCallbackCancelHandler.handle(incomingMessage);
             }
             case UNDEFINED -> {
@@ -68,8 +67,8 @@ public class CallbackDispatcher {
             }
         };
 
-        telegramSender.send(message);
-        telegramSender.proceededCallbackQuery(callbackQuery.id());
+        sender.send(message);
+        sender.proceededCallbackQuery(callbackQuery.id());
         //TODO delegate to necessary CallbackHandler
     }
 }

@@ -1,7 +1,7 @@
 package md.zibliuc.taskmanagerbot.service;
 
 import lombok.RequiredArgsConstructor;
-import md.zibliuc.taskmanagerbot.bot.TelegramSender;
+import md.zibliuc.taskmanagerbot.bot.Sender;
 import md.zibliuc.taskmanagerbot.config.NotificationResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.database.entity.BotUser;
@@ -24,7 +24,7 @@ public class NotificationService {
 
     private final NotificationResponseConfig notificationResponseConfig;
     private final KeyboardService keyboardService;
-    private final TelegramSender telegramSender;
+    private final Sender sender;
     private final TaskService taskService;
 
     @Scheduled(fixedRate = 60_000)
@@ -52,7 +52,7 @@ public class NotificationService {
                                         .getSendTaskNotification()
                                         .formatted(task.getName());
 
-                                telegramSender.send(
+                                sender.send(
                                         OutgoingMessage.send(
                                                 botUser.getChatId(),
                                                 response

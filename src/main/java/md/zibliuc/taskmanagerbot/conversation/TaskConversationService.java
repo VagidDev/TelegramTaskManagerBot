@@ -27,16 +27,15 @@ public class TaskConversationService {
     private final UserConversationStateService conversationStateService;
     private final RandomFunnyResponseConfig randomFunnyResponseConfig;
     private final TimeValidationService timeValidationService;
-    private final TelegramSender telegramSender;
     private final KeyboardService keyboardService;
     private final DateTimeUtil dateTimeUtil;
     private final TaskService taskService;
 
-    public void handle(IncomingMessage message) {
+    public OutgoingMessage handle(IncomingMessage message) {
         LOGGER.info("Received message {}", message);
         ConversationContext ctx = conversationStateService.get(message.chatId());
 
-        OutgoingMessage outgoingMessage = switch (ctx.getState()) {
+        return switch (ctx.getState()) {
             case WAITING_TITLE -> onTitle(message.chatId(), message.text(), ctx);
             case WAITING_TIME -> onTime(message.chatId(), message.text(), ctx);
             default -> {
@@ -50,7 +49,6 @@ public class TaskConversationService {
             }
         };
 
-        telegramSender.send(outgoingMessage);
     }
 
     public OutgoingMessage onTitle(Long chatId, String text, ConversationContext ctx) {

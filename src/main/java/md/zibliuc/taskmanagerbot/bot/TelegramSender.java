@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class TelegramSender {
+public class TelegramSender implements Sender {
     private static final Logger LOGGER = LogManager.getLogger(TelegramSender.class);
     private final TelegramBot telegramBot;
 

@@ -20,14 +20,13 @@ public class CommandHandler {
     private static final Logger LOGGER = LogManager.getLogger(CommandHandler.class);
     private final CommandConfig commandConfig;
     private final Set<String> supportedCommands;
-    private final TelegramSender sender;
 
     public boolean supports(String command) {
         return supportedCommands.contains(command);
     }
 
     //TODO: delegate to required CommandHandler
-    public void handle(IncomingMessage message) {
+    public OutgoingMessage handle(IncomingMessage message) {
         ProceedCommand command = commandConfig
                 .getMainMenuConfig()
                 .get(message.text());
@@ -39,9 +38,10 @@ public class CommandHandler {
             );
             OutgoingMessage outgoingMessage = command.proceed(message);
             LOGGER.debug("Got message to send -> {}", outgoingMessage.getText());
-            sender.send(outgoingMessage);
+            return outgoingMessage;
         } else {
-            LOGGER.warn("Received null for input {}", message.text());
+            LOGGER.error("Cannot get command to proceed from user input -> {}", message.text());
+            return null;
         }
     }
 }
