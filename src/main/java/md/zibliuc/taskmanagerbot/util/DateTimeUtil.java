@@ -38,4 +38,8 @@ public class DateTimeUtil {
     public String parseDateTimeToTimeString(LocalDateTime localDateTime) {
         return timeFormatter.format(localDateTime);
     }
+
+    public String formatTime(String time) {
+        return null;
+    }
 }
