@@ -1,8 +1,7 @@
 package md.zibliuc.taskmanagerbot.service;
 
-import md.zibliuc.taskmanagerbot.conversation.TaskConversationService;
-import md.zibliuc.taskmanagerbot.validators.SimpleValidator;
-import md.zibliuc.taskmanagerbot.validators.TimeFormatSimpleValidator;
+import md.zibliuc.taskmanagerbot.util.validators.SimpleValidator;
+import md.zibliuc.taskmanagerbot.util.validators.TimeFormatSimpleValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
