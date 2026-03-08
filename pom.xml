@@ -10,7 +10,7 @@
     </parent>
     <groupId>md.zibliuc</groupId>
     <artifactId>task-manager-bot</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>Task-Manager</name>
     <description>Telegram Bot for creating, scheduling and planning tasks</description>
     <url/>

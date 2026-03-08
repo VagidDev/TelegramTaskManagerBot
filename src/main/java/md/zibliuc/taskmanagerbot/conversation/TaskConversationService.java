@@ -7,10 +7,7 @@ import md.zibliuc.taskmanagerbot.config.RandomFunnyResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
-import md.zibliuc.taskmanagerbot.service.KeyboardService;
-import md.zibliuc.taskmanagerbot.service.TaskService;
-import md.zibliuc.taskmanagerbot.service.TimeValidationService;
-import md.zibliuc.taskmanagerbot.service.UserConversationStateService;
+import md.zibliuc.taskmanagerbot.service.*;
 import md.zibliuc.taskmanagerbot.util.DateTimeUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +24,7 @@ public class TaskConversationService {
     private final UserConversationStateService conversationStateService;
     private final RandomFunnyResponseConfig randomFunnyResponseConfig;
     private final TimeValidationService timeValidationService;
+    private final TimeFormatterService timeFormatterService;
     private final TelegramSender telegramSender;
     private final KeyboardService keyboardService;
     private final DateTimeUtil dateTimeUtil;
@@ -65,8 +63,15 @@ public class TaskConversationService {
 
     public OutgoingMessage onTime(Long chatId, String text, ConversationContext ctx) {
         try {
+            //double-checking time format, after formatting input
             if (!timeValidationService.validate(text)) {
-                return OutgoingMessage.send(chatId, conversationResponseConfig.getOnTimeIncorrectFormat());
+                LOGGER.info("Invalid time format! Trying to autoformat the input `{}`", text);
+                text = timeFormatterService.format(text);
+                LOGGER.info("Formatted text -> `{}`", text);
+                if (!timeValidationService.validate(text)) {
+                    LOGGER.warn("Invalid time format after autoformatting! Received text `{}`", text);
+                    return OutgoingMessage.send(chatId, conversationResponseConfig.getOnTimeIncorrectFormat());
+                }
             }
 
             LocalTime time = LocalTime.parse(text);
