@@ -1,10 +1,15 @@
 package md.zibliuc.taskmanagerbot.dto;
 
-public record IncomingMessage (
-    Long chatId,
-    Integer messageId,
-    String text,
-    CallbackData callbackData,
-    TelegramUserData userData
-)
-{ }
+public interface IncomingMessage {
+    Long chatId();
+    Integer messageId();
+    String text();
+    TelegramUserData userData();
+}
+
+
+//Long chatId,
+//Integer messageId,
+//String text,
+//CallbackData callbackData,
+//TelegramUserData userData
