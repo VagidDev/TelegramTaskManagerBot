@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.config.CallbackResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
 import md.zibliuc.taskmanagerbot.dto.CallbackData;
-import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingCallbackMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.service.TaskService;
 import md.zibliuc.taskmanagerbot.util.DateTimeUtil;
@@ -23,8 +23,8 @@ public class TaskCallbackActionHandler {
 //    private final
     //TODO COMPLETE / DELETE / POSTPONE / EDIT
     //TODO Working only with id
-    public OutgoingMessage handle(IncomingMessage incomingMessage) {
-        CallbackData callbackData = incomingMessage.callbackData();
+    public OutgoingMessage handle(IncomingCallbackMessage incomingCallbackMessage) {
+        CallbackData callbackData = incomingCallbackMessage.callbackData();
         try {
             Long taskId = callbackData.asLong();
             String response = switch (callbackData.type()) {
@@ -38,7 +38,7 @@ public class TaskCallbackActionHandler {
                 }
             };
 
-            return OutgoingMessage.send(incomingMessage.chatId(), response);
+            return OutgoingMessage.send(incomingCallbackMessage.chatId(), response);
         } catch (NumberFormatException e) {
             LOGGER.error(
                     "Cannot parse value of callback as Long. Callback received -> {}, Error -> {}",

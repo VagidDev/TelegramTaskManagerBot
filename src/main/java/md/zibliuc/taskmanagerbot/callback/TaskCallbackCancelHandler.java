@@ -2,7 +2,7 @@ package md.zibliuc.taskmanagerbot.callback;
 
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.config.CallbackResponseConfig;
-import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingCallbackMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.service.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.UserConversationStateService;
@@ -19,10 +19,10 @@ public class TaskCallbackCancelHandler {
     private final UserConversationStateService userConversationStateService;
     private final KeyboardService keyboardService;
 
-    public OutgoingMessage handle(IncomingMessage incomingMessage) {
-        userConversationStateService.reset(incomingMessage.chatId());
+    public OutgoingMessage handle(IncomingCallbackMessage incomingCallbackMessage) {
+        userConversationStateService.reset(incomingCallbackMessage.chatId());
         return OutgoingMessage
-                .send(incomingMessage.chatId(), callbackResponseConfig.getCancel())
+                .send(incomingCallbackMessage.chatId(), callbackResponseConfig.getCancel())
                 .keyboard(keyboardService.menuKeyboard());
     }
 }

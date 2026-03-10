@@ -1,7 +1,9 @@
 package md.zibliuc.taskmanagerbot.dispatcher;
 
-import com.pengrad.telegrambot.model.Update;
 import lombok.RequiredArgsConstructor;
+import md.zibliuc.taskmanagerbot.dto.IncomingCallbackMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingTextMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -14,16 +16,13 @@ public class UpdateDispatcher {
     private final TextMessageDispatcher textMessageDispatcher;
     private final CallbackDispatcher callbackDispatcher;
 
-    public void dispatch(Update update) {
-        //TODO: test if method receiving null from update.message() when sending callback
-        if (update.message() != null && update.message().text() != null) {
-            LOGGER.debug("Processing text message");
-            textMessageDispatcher.dispatch(update.message());
-        } else if (update.callbackQuery() != null) {
-            LOGGER.debug("Processing callback message");
-            callbackDispatcher.dispatch(update.callbackQuery());
+    public void dispatch(IncomingMessage incomingMessage) {
+        if (incomingMessage instanceof IncomingTextMessage incomingTextMessage) {
+            textMessageDispatcher.dispatch(incomingTextMessage);
+        } else if (incomingMessage instanceof IncomingCallbackMessage incomingCallbackMessage) {
+            callbackDispatcher.dispatch(incomingCallbackMessage);
         } else {
-            LOGGER.warn("Undefined type of message -> {}", update);
+            LOGGER.warn("Cannot find instance of incoming message -> {}", incomingMessage.getClass().getSimpleName());
         }
     }
 }

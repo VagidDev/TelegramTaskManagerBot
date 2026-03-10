@@ -6,10 +6,3 @@ public interface IncomingMessage {
     String text();
     TelegramUserData userData();
 }
-
-
-//Long chatId,
-//Integer messageId,
-//String text,
-//CallbackData callbackData,
-//TelegramUserData userData

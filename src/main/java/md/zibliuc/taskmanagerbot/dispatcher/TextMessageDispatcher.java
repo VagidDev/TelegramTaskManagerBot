@@ -1,13 +1,12 @@
 package md.zibliuc.taskmanagerbot.dispatcher;
 
-import com.pengrad.telegrambot.model.Message;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.bot.Sender;
 import md.zibliuc.taskmanagerbot.command.CommandHandler;
 import md.zibliuc.taskmanagerbot.conversation.TaskConversationService;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingTextMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
-import md.zibliuc.taskmanagerbot.dto.TelegramUserData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -20,29 +19,14 @@ public class TextMessageDispatcher {
     private final Sender sender;
     private final CommandHandler commandHandler;
 
-    public void dispatch(Message message) {
-        TelegramUserData userData = new TelegramUserData(
-                message.chat().id(),
-                message.from().firstName(),
-                message.from().lastName(),
-                message.from().username()
-        );
-
-        IncomingMessage incomingMessage = new IncomingMessage(
-                message.chat().id(),
-                message.messageId(),
-                message.text(),
-                null,
-                userData
-        );
-
+    public void dispatch(IncomingTextMessage incomingTextMessage) {
         OutgoingMessage outgoingMessage;
 
-        if (commandHandler.supports(message.text())) {
-            LOGGER.debug("Received command -> {}", incomingMessage.text());
-            outgoingMessage = commandHandler.handle(incomingMessage);
+        if (commandHandler.supports(incomingTextMessage.text())) {
+            LOGGER.debug("Received command -> {}", incomingTextMessage.text());
+            outgoingMessage = commandHandler.handle(incomingTextMessage);
         } else {
-            outgoingMessage = taskConversationService.handle(incomingMessage);
+            outgoingMessage = taskConversationService.handle(incomingTextMessage);
         }
 
         sender.send(outgoingMessage);

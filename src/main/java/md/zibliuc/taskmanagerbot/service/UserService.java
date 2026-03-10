@@ -36,19 +36,19 @@ public class UserService {
         return botUsers;
     }
 
-    public void ensureUserExists(TelegramUserData userData) {
+    public void ensureUserExists(Long chatId, TelegramUserData userData) {
         if (userData == null) return;
 
-        BotUser user = getByChatId(userData.chatId());
+        BotUser user = getByChatId(chatId);
         if (user == null) {
             LOGGER.info(
                     "User for chat id {} does not exists. Creating user with username {}",
-                    userData.chatId(),
+                    chatId,
                     userData.username()
             );
             user = new BotUser(
                     null,
-                    userData.chatId(),
+                    chatId,
                     userData.firstName(),
                     userData.lastName(),
                     userData.username(),
@@ -57,7 +57,7 @@ public class UserService {
 
             save(user);
         } else {
-            LOGGER.info("User for chat id {} already exists", userData.chatId());
+            LOGGER.info("User for chat id {} already exists", chatId);
         }
     }
 

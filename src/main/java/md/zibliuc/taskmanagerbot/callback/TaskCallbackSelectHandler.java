@@ -3,7 +3,7 @@ package md.zibliuc.taskmanagerbot.callback;
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.config.CallbackResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
-import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingCallbackMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.service.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.TaskService;
@@ -22,28 +22,28 @@ public class TaskCallbackSelectHandler {
     private final KeyboardService keyboardService;
     private final TaskService taskService;
 
-    public OutgoingMessage handle(IncomingMessage message) {
+    public OutgoingMessage handle(IncomingCallbackMessage incomingCallbackMessage) {
         try {
-            Long callbackId = message.callbackData().asLong();
+            Long callbackId = incomingCallbackMessage.callbackData().asLong();
             Task task = taskService.get(callbackId);
             if (task != null) {
                 String response = callbackResponseConfig
                         .getSelectTask()
                         .formatted(task.getName(), dateTimeUtil.parseDateTimeToDateTimeString(task.getDeadline()));
                 return OutgoingMessage
-                        .edit(message.chatId(), message.messageId(), response)
+                        .edit(incomingCallbackMessage.chatId(), incomingCallbackMessage.messageId(), response)
                         .keyboard(keyboardService.crudKeyboard(task.getId()));
             }
-            LOGGER.warn("Cannot find task for taskId {}. Callback received {}", callbackId, message.callbackData());
+            LOGGER.warn("Cannot find task for taskId {}. Callback received {}", callbackId, incomingCallbackMessage.callbackData());
             return OutgoingMessage
-                    .send(message.chatId(), callbackResponseConfig.getSelectTaskNotFound());
+                    .send(incomingCallbackMessage.chatId(), callbackResponseConfig.getSelectTaskNotFound());
         } catch (NumberFormatException e) {
             LOGGER.error(
                     "Error while getting callback data from callback {}. Error -> {}",
-                    message.callbackData(),
+                    incomingCallbackMessage.callbackData(),
                     e.getLocalizedMessage()
             );
-            return OutgoingMessage.send(message.chatId(), callbackResponseConfig.getSelectTaskError());
+            return OutgoingMessage.send(incomingCallbackMessage.chatId(), callbackResponseConfig.getSelectTaskError());
         }
     }
 }

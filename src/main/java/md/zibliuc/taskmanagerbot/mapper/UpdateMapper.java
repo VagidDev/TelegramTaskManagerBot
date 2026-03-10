@@ -37,7 +37,7 @@ public class UpdateMapper {
         );
     }
 
-    private IncomingTextMessage buildTextMessage(Message message) {
+    private IncomingMessage buildTextMessage(Message message) {
         LOGGER.debug("Building text message");
 
         TelegramUserData telegramUserData = getUserData(message.from());

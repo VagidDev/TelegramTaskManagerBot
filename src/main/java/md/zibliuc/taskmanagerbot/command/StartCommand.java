@@ -2,7 +2,7 @@ package md.zibliuc.taskmanagerbot.command;
 
 import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.config.CommandResponseConfig;
-import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingTextMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.service.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.UserService;
@@ -16,10 +16,10 @@ public class StartCommand implements ProceedCommand {
     private final CommandResponseConfig commandResponseConfig;
 
     @Override
-    public OutgoingMessage proceed(IncomingMessage message) {
-        userService.ensureUserExists(message.userData());
+    public OutgoingMessage proceed(IncomingTextMessage incomingTextMessage) {
+        userService.ensureUserExists(incomingTextMessage.chatId(), incomingTextMessage.userData());
         return OutgoingMessage
-                .send(message.chatId(), commandResponseConfig.getStart())
+                .send(incomingTextMessage.chatId(), commandResponseConfig.getStart())
                 .keyboard(keyboardService.menuKeyboard());
     }
 }

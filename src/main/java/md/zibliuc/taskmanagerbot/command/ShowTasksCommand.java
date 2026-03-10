@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import md.zibliuc.taskmanagerbot.config.CommandResponseConfig;
 import md.zibliuc.taskmanagerbot.database.entity.BotUser;
 import md.zibliuc.taskmanagerbot.database.entity.Task;
-import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingTextMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import md.zibliuc.taskmanagerbot.service.KeyboardService;
 import md.zibliuc.taskmanagerbot.service.UserService;
@@ -24,21 +24,21 @@ public class ShowTasksCommand implements ProceedCommand {
     private final CommandResponseConfig commandResponseConfig;
     //TODO: need to be tested - no tasks while it was wrote
     @Override
-    public OutgoingMessage proceed(IncomingMessage message) {
-        BotUser botUser = userService.getByChatId(message.chatId());
+    public OutgoingMessage proceed(IncomingTextMessage incomingTextMessage) {
+        BotUser botUser = userService.getByChatId(incomingTextMessage.chatId());
         if (botUser == null) {
-            LOGGER.error("Cannot find user for chat id {}", message.chatId());
-            return OutgoingMessage.send(message.chatId(), commandResponseConfig.getShowTasksError());
+            LOGGER.error("Cannot find user for chat id {}", incomingTextMessage.chatId());
+            return OutgoingMessage.send(incomingTextMessage.chatId(), commandResponseConfig.getShowTasksError());
         }
 
         List<Task> taskList = botUser.getTasks();
         if (taskList.isEmpty()) {
             return OutgoingMessage
-                    .send(message.chatId(), commandResponseConfig.getShowTasksEmpty());
+                    .send(incomingTextMessage.chatId(), commandResponseConfig.getShowTasksEmpty());
         }
 
         return OutgoingMessage
-                .send(message.chatId(), commandResponseConfig.getShowTasks())
+                .send(incomingTextMessage.chatId(), commandResponseConfig.getShowTasks())
                 .keyboard(keyboardService.taskKeyboard(taskList));
     }
 }

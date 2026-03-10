@@ -47,17 +47,15 @@ public class TaskConversationService {
         };
     }
 
-    public OutgoingMessage onTitle(Long chatId, String text, ConversationContext ctx) {
+    private OutgoingMessage onTitle(Long chatId, String text, ConversationContext ctx) {
         ctx.setTitle(text);
         ctx.setState(ConversationState.WAITING_DATE);
         return OutgoingMessage
                 .send(chatId, conversationResponseConfig.getOnTitleCorrect())
                 .keyboard(keyboardService.dateKeyboard(3));
     }
-    // Will be at callback processor
-    // public void onDate(Long chatId, LocalDate date) {}
 
-    public OutgoingMessage onTime(Long chatId, String text, ConversationContext ctx) {
+    private OutgoingMessage onTime(Long chatId, String text, ConversationContext ctx) {
         try {
             //double-checking time format, after formatting input
             if (!timeValidationService.validate(text)) {

@@ -1,17 +1,14 @@
 package md.zibliuc.taskmanagerbot.command;
 
 import lombok.RequiredArgsConstructor;
-import md.zibliuc.taskmanagerbot.bot.TelegramSender;
 import md.zibliuc.taskmanagerbot.config.CommandConfig;
-import md.zibliuc.taskmanagerbot.config.MainMenuConfig;
-import md.zibliuc.taskmanagerbot.dispatcher.TextMessageDispatcher;
 import md.zibliuc.taskmanagerbot.dto.IncomingMessage;
+import md.zibliuc.taskmanagerbot.dto.IncomingTextMessage;
 import md.zibliuc.taskmanagerbot.dto.OutgoingMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
 import java.util.Set;
 
 @Component
@@ -26,21 +23,21 @@ public class CommandHandler {
     }
 
     //TODO: delegate to required CommandHandler
-    public OutgoingMessage handle(IncomingMessage message) {
+    public OutgoingMessage handle(IncomingTextMessage incomingTextMessage) {
         ProceedCommand command = commandConfig
                 .getMainMenuConfig()
-                .get(message.text());
+                .get(incomingTextMessage.text());
         if (command != null) {
             LOGGER.info(
                     "Processing command -> {} for input -> {}",
                     command.getClass().getSimpleName(),
-                    message.text()
+                    incomingTextMessage.text()
             );
-            OutgoingMessage outgoingMessage = command.proceed(message);
+            OutgoingMessage outgoingMessage = command.proceed(incomingTextMessage);
             LOGGER.debug("Got message to send -> {}", outgoingMessage.getText());
             return outgoingMessage;
         } else {
-            LOGGER.error("Cannot get command to proceed from user input -> {}", message.text());
+            LOGGER.error("Cannot get command to proceed from user input -> {}", incomingTextMessage.text());
             return null;
         }
     }
